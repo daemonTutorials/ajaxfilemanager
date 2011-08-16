@@ -1,0 +1,386 @@
+
+<!DOCTYPE html>
+<html lang="de" xml:lang="de">
+<head>
+<title>{{ ajaxfilemanager.settings.site_title }}</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href="media/css/filemanager_style.css" />
+<link rel="stylesheet" type="text/css" href="media/css/widget.css" />
+<script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js" charset="utf-8"></script>
+<script type="text/javascript" src="media/js/classarrays.js"></script>
+<script type="text/javascript">
+function removeBkm(id)
+{
+    YUI().use('node', function(Y) {
+        Y.one('#bkm'+id).remove();
+        localStorage.setItem('bookmarks', Y.one('#bookmarks').get('innerHTML'));
+    });
+}
+YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable', 'resize', 'anim', function(Y) {
+    Y.on('domready', function() {
+        if(Y.one('#pathstring').get('innerHTML') == "{{ ajaxfilemanager.settings.file_directory }}")
+        { Y.one('#pathmark').setStyle('display', 'none'); }
+        if(localStorage.getItem('requestpath'))
+        {
+            location.href = "?path="+localStorage.getItem('requestpath');
+            localStorage.removeItem('requestpath');        
+        }  
+        if(localStorage.getItem('bookmarks'))
+        {
+            Y.one('#bookmarks').set('innerHTML', localStorage.getItem('bookmarks'));        
+        }  
+        if(localStorage.getItem('bkm_switch'))
+        {
+            var bkm_switch = localStorage.getItem('bkm_switch');
+            if (bkm_switch == "on")
+            {
+                Y.one('#marks').setStyle('display', 'block');
+                var marksAnim = new Y.Anim({
+                    node: '#marks',
+                    to: {
+                        opacity: 1,
+                    },
+                });
+                marksAnim.run();
+                marksAnim.on('end', function() {
+                    Y.one('#display_bookmarks').set('rel', 'off');
+                    Y.one('#display_bookmarks span').set('innerHTML', 'ausblenden');
+                });
+                localStorage.setItem('bkm_switch', 'off');
+            }
+        }
+         
+        /* Classes */  
+
+        var overlay_drag = new Y.DD.Drag({
+            node: '.yui3-overlay',
+        });
+        var yesno_drag = new Y.DD.Drag({
+            node: '.yesno_drag',
+        });
+
+        
+
+        var newfolder = new Y.Overlay({
+            srcNode: "#newfolder",
+            visible:false,
+            xy: [300,200],
+        });    
+        newfolder.render();
+        
+        
+
+        var yesno = new Y.Overlay({
+            srcNode: "#yesno",
+            visible:false,
+            xy: [400,300],
+        });    
+        yesno.render();
+        Y.one('.yesno_no').on('click', function() { yesno.hide();Y.one('#modal_bg').setStyle('display', 'none'); });
+
+        
+
+
+
+        /* Event Handler */
+        
+        Y.one('#display_bookmarks').on('click', function() {
+            if(Y.one('#display_bookmarks').get('rel') == "off")
+            {
+                var marksAnim = new Y.Anim({
+                    node: '#marks',
+                    to: {
+                        opacity: 0,
+                    },
+                });        
+                marksAnim.run();
+                marksAnim.on('end', function() {
+                    Y.one('#marks').setStyle('display', 'none');
+                    Y.one('#display_bookmarks span').set('innerHTML', 'einblenden');
+                    Y.one('#display_bookmarks').set('rel', 'on');
+                });
+                localStorage.setItem('bkm_switch', 'off');
+            }
+            else {
+                
+                    Y.one('#marks').setStyle('display', 'block');
+                var marksAnim = new Y.Anim({
+                    node: '#marks',
+                    to: {
+                        opacity: 1,
+                    },
+                });
+                marksAnim.run();
+                marksAnim.on('end', function() {
+                    Y.one('#display_bookmarks').set('rel', 'off');
+                    Y.one('#display_bookmarks span').set('innerHTML', 'ausblenden');
+                });
+                localStorage.setItem('bkm_switch', 'on');
+            }
+        });
+        Y.one('#pathmark').on('click', function() {
+            var path = Y.one('#pathstring').get('innerHTML');
+            var currentpath = path.replace("{{ ajaxfilemanager.settings.file_directory }}", "base::");
+             
+            if (!localStorage.getItem("bookmarks"))
+            {
+                old = "";    
+                
+                i = 1;
+            } else { old=localStorage.getItem("bookmarks"); 
+            i = parseInt(localStorage.getItem('bkm_int')) + 1; }
+
+            console.log(i); 
+            localStorage.setItem('bookmarks', old+"<tr id='bkm"+i+"'><td><a href='?path="+currentpath+"' class='bookmark'>"+currentpath+"</a></td><td><a href='#' class='delbookmark"+i+"' onClick=\" removeBkm("+i+"); \">[X]</a></td></tr>");
+             Y.one('#bookmarks').set('innerHTML', localStorage.getItem('bookmarks'));
+             localStorage.setItem('bkm_int', i);                      
+                        
+            
+        });
+        
+
+        Y.one('#newfolder_btn').on('click', function() {
+            Y.one('#newfolder').setStyle('display', 'block');            
+            newfolder.show();
+        });
+        Y.one('#footer_display').on('click', function() {
+            if(Y.one('#footer_display').get('rel') == "off")
+            {
+                var footerAnim = new Y.Anim({
+                    node: 'footer',
+                    to: {
+                        opacity: 0,
+                    },
+                });        
+                footerAnim.run();
+                footerAnim.on('end', function() {
+                    Y.one('footer').setStyle('display', 'none');
+                    Y.one('#footer_display span').set('innerHTML', 'einblenden');
+                    Y.one('#footer_display').set('rel', 'on');
+                });
+            }
+            else {
+                
+                    Y.one('footer').setStyle('display', 'block');
+                var footerAnim = new Y.Anim({
+                    node: 'footer',
+                    to: {
+                        opacity: 1,
+                    },
+                });
+                footerAnim.run();
+                footerAnim.on('end', function() {
+                    Y.one('#footer_display').set('rel', 'off');
+                    Y.one('#footer_display span').set('innerHTML', 'ausblenden');
+                });
+            }
+        });
+        Y.one('#reset_session').on('click', function() {
+            var containerOut = new Y.Anim({
+                node: '#container',
+                to: {
+                    opacity: 0,
+                }
+            });
+            containerOut.run();
+            containerOut.on('end', function() {
+                
+                Y.one('#container').set('innerHTML', '');
+                location.reload(true);
+                
+            });
+        });
+        Y.one('.yui3-overlay-close').on('click', function() {
+            /* Fill all Overlays here */            
+            Y.one('#newfolder').setStyle('display', 'none');
+            newfolder.hide();
+        });
+
+        Y.one('#newfolder_btn_create').on('click', function() {
+            createNewFolder(Y.one('#folder').get('value'));
+        });
+        Y.one("#save_path").on('click', function() {
+            var requestpath = "base::/"+location.href.split('::')[1];
+            localStorage.setItem('requestpath', requestpath);
+        });
+        {% for item in filenames %}
+        Y.one('.removefile{{ forloop.counter }}').on('click', function() {
+            Y.one('#yesno_head').set("innerHTML","Wollen sie die Datei {{ item }} wirklich l&ouml;schen?");
+            Y.one('#yesno_details').set("innerHTML", "Sie sind in Begriff eine Datei zu l&ouml;schen.");
+            yesno.show();
+            Y.one('#modal_bg').setStyle('display', 'block');
+            Y.one('.yesno_yes').on('click', function() {                
+                deleteFile("{{ item }}", "{{ forloop.counter }}");
+                yesno.hide();
+                Y.one('#modal_bg').setStyle('display', 'none');
+            });
+        });         
+
+        {% endfor %}
+        {% for folder in resultdirlist %}
+        Y.one('#removefolder{{ forloop.counter }}').on('click', function() {
+            Y.one('#yesno_head').set("innerHTML","Wollen sie den Ordner {{ folder }} wirklich l&ouml;schen?");
+            Y.one('#yesno_details').set("innerHTML", "Sie sind in Begriff einen Ordner zu l&ouml;schen.");
+            yesno.show();
+            Y.one('#modal_bg').setStyle('display', 'block');
+            Y.one('.yesno_yes').on('click', function() {                
+                deleteFolder("{{ folder }}", "{{ forloop.counter }}");
+                yesno.hide();
+                Y.one('#modal_bg').setStyle('display', 'none');
+            });
+        });         
+
+        {% endfor %}
+        /* AJAX */
+        
+
+
+        var NewFolderHandler = {
+
+            start: function (transactionid, arguments) { 
+                        Y.one('#newfolder_btn_create').setAttribute('disabled', 'disabled');
+                    },
+                    success: function (transactionid, response, arguments) {
+                        Y.one('#newfolder_btn_create').removeAttribute('disabled');
+                        newfolder.hide();                  
+                        Y.one('#newfolder').setStyle('display', 'none');
+                        Y.one('#folder').set('value', '');
+                        location.reload(true);
+                    },
+        };
+
+        var deleteFileHandler = {
+             success: function (transactionid, response, arguments) {
+                        Y.one('li.item'+arguments.id).setStyle('display', 'none');
+                    },
+        };
+
+        var deleteFolderHandler = {
+             success: function (transactionid, response, arguments) {
+                        Y.one('li.folder'+arguments.id).setStyle('display', 'none');
+                    },
+        };
+
+        function createNewFolder(foldername) {
+            var cfg = {
+                method: "GET",
+                on: {
+                        start: NewFolderHandler.start,
+                        success: NewFolderHandler.success,
+                },
+                context: NewFolderHandler,
+                
+            };
+            var request = Y.io('actions/newfolder/'+foldername+'/?path={{ currentpath }}', cfg);
+        }
+
+        function deleteFile(file_delete,id) {
+            var cfg = {
+                method: "GET",
+                data: "path={{ currentpath }}&file="+file_delete,
+                on: {
+                        success: deleteFileHandler.success,
+                },
+                context: deleteFileHandler,
+                arguments: {
+                    "id": id,
+                },
+            };
+            var request = Y.io('actions/rmfile/', cfg);
+        }
+
+        function deleteFolder(folder,id) {
+            var cfg = {
+                method: "GET",
+                data: "path={{ currentpath }}&folder="+folder,
+                on: {
+                        success: deleteFolderHandler.success,
+                },
+                context: deleteFolderHandler,
+                arguments: {
+                    "id": id,
+                },
+            };
+            var request = Y.io('actions/rmfolder/', cfg);
+        }
+
+    });
+});
+</script>
+</head>
+
+<body>
+<div id="container">
+<section id="controls" class="widgetgreen">
+<h3>Controls</h3>
+<ul>
+<li><a href="#" id="newfolder_btn">New Folder</a></li>
+<li><a href="#" id="save_path" title="Works only one times">Save Path</a></li>
+</ul>
+</section>
+<section id="widgets" class="widgetgreen">
+<h3>Widgets</h3>
+<ul>
+    <li><a href="#" id="footer_display" rel="on">Informationen <span>einblenden</span></a></li>
+    <li><a href="#" id="reset_session">Aktualisieren</a></li>
+    <li><a href="#" id="display_bookmarks" rel="on">Lesezeichen <span>einblenden</span></a></li>
+</ul>
+</section>
+<section id="marks" class="widgetgreen">
+<h3>Bookmarks</h3>
+<table id="bookmarks">
+
+</table>
+</section>
+<section id="filelist" class="widgetblue">
+<h3 id="path"><span id="pathstring">{{ path }}</span><span id="pathmark">[Add Mark]</span></h3>
+<ul class="sortable">
+<li rel="{{ ajaxfilemanager.settings.file_directory }}"><a href="?path=base::/">[.]</a></li>
+<li rel="{{ above }}"><a href="?path={{ above }}">[..]</a></li>
+{% if resultdirlist or filelist %}
+{% for item in resultdirlist %}
+<li rel="{{ path }}/{{ item }}" class="folder{{ forloop.counter }}"><span><a href="?path={{ currentpath }}/{{ item }}">{{ item }}</a></span><span class="controls"><a href="#" id="removefolder{{ forloop.counter }}">[X]</a></li>
+{% endfor %}
+{% for item in filelist %}
+<li rel="{{ path }}/{{ item }}" class="item{{ forloop.counter }}"><span>{{ item }}</span><span class="controls"><a href="#" class="removefile{{ forloop.counter }}">[X]</a></li>
+{% endfor %}
+{% else %}
+<li><strong>No Items available</strong></li>
+{% endif %}
+</ul>
+</section>
+</div>
+
+<div id="newfolder" class="overlay widgetgreen yui3-overlay ">
+
+<div class="yui3-overlay-close"></div>
+
+<div class="yui3-overlay-content">
+
+<div class="yui3-widget-hd"><h3>Newfolder</h3></div>
+
+<div class="yui3-widget-bd">
+<label for="folder">Folder name:</label>
+<input type="text" name="folder" id="folder" />
+<button id="newfolder_btn_create">Create</button>
+</div>
+</div>
+</div>
+
+
+<div id="modal_bg"></div>
+<div id="yesno" class="widgetred yui3-overlay yesno_drag modal draggable">
+<h3 id="yesno_head"></h3>
+<p id="yesno_details"></p>
+<button class="yesno_yes">Yes</button><button class="yesno_no">Cancel</button>
+</div>
+<footer class="widgetgreen">
+<h3>AjaxFileManager &copy; 2011 by Maik W&ouml;hl</h3>
+<a href="http://www.w3.org/html/logo/">
+<img src="http://www.w3.org/html/logo/badge/html5-badge-h-css3-graphics-performance-semantics-storage.png" width="261" height="64" alt="HTML5 Powered with CSS3 / Styling, Graphics, 3D &amp; Effects, Performance &amp; Integration, Semantics, and Offline &amp; Storage" title="HTML5 Powered with CSS3 / Styling, Graphics, 3D &amp; Effects, Performance &amp; Integration, Semantics, and Offline &amp; Storage">
+</a>
+</footer>
+</div>
+
+</body>
+</html>

@@ -19,5 +19,5 @@ Finish!
 
 Usage
 =====
-Serve to "http://your.server.adress/ajaxfilemanager". You will be redirect to "http://your.server.adress/ajaxfilemanager/?path=base::/".
-The Path Syntax in the URL is simple. The "base::" is the ajaxfm_media_root. The rest is the original path.    
+Serve to 'http://your.server.adress/ajaxfilemanager'. You will be redirect to 'http://your.server.adress/ajaxfilemanager/?path=base::/'.
+The Path Syntax in the URL is simple. The 'base::' is the ajaxfm_media_root. The rest is the original path.    

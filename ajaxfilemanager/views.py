@@ -4,6 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 import ajaxfilemanager
 import os
 import subprocess
+import shutil
 
 def findpath(path):
     above = path[::-1]
@@ -64,9 +65,10 @@ def index(request):
 
         return render_to_response('ajaxfilemanager/index.html', { 'ajaxfilemanager': ajaxfilemanager, 'resultdirlist': resultdirlist, 'filelist': filelist, 'currentpath': currentpath, 'path': path, 'above': above, 'filenames': filenames })
 
-def newfolder(request, folder):
+def newfolder(request):
     try:
         path = request.GET['path']
+        folder = request.GET["folder"]
     except (KeyError):
         return HttpResponse("No path exist")
     else:
@@ -78,9 +80,10 @@ def newfolder(request, folder):
             return HttpResponse("Folder successfully created")
 
 
-def rmfile(request, filename):
+def rmfile(request):
     try:
         path = request.GET['path']
+        filename = request.GET["filename"]
     except (KeyError):
         return HttpResponse("No path exist")
     else:
@@ -89,11 +92,12 @@ def rmfile(request, filename):
         if os.access(path, os.W_OK):
             os.chdir(path)
             os.remove(filename)
-            return HttpResponse("File successfully deleted");        
+            return HttpResponse("File successfully deleted")       
 
-def rmfolder(request, folder):
+def rmfolder(request):
     try:
         path = request.GET['path']
+        folder = request.GET["folder"]
     except (KeyError):
         return HttpResponse("No path exist")
     else:
@@ -102,7 +106,23 @@ def rmfolder(request, folder):
         if os.access(path, os.W_OK):
             os.chdir(path)
             os.rmdir(folder)
-            return HttpResponse("Folder successfully deleted"); 
+            return HttpResponse("Folder successfully deleted")
+
+def mvfile(request):
+    try:
+        path = request.GET['path']
+        filepath = request.GET["filepath"]
+        filename = request.GET["filename"]
+    except (KeyError):
+        return HttpResponse("No path exist")
+    else:
+        currentpath = path
+        path = ajaxfilemanager.settings.file_directory+"/"+path
+        if os.access(path, os.W_OK):
+            src = path+"/"+filename
+            dst = ajaxfilemanager.settings.file_directory+"/"+filepath
+            shutil.move(src, dst)
+            return HttpResponse("File successfully moved")
         
 
     

@@ -7,7 +7,6 @@
 <link rel="stylesheet" type="text/css" href="media/css/filemanager_style.css" />
 <link rel="stylesheet" type="text/css" href="media/css/widget.css" />
 <script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js" charset="utf-8"></script>
-<script type="text/javascript" src="media/js/classarrays.js"></script>
 <script type="text/javascript">
 function removeBkm(id)
 {
@@ -77,6 +76,14 @@ YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable
         });    
         yesno.render();
         Y.one('.yesno_no').on('click', function() { yesno.hide();Y.one('#modal_bg').setStyle('display', 'none'); });
+
+        var modal_path = new Y.Overlay({
+            srcNode: "#modal_path",
+            visible:false,
+            xy: [400,300],
+        });    
+        modal_path.render();
+        Y.one('.modal_path_no').on('click', function() { modal_path.hide();Y.one('#modal_bg').setStyle('display', 'none'); });
 
         
 
@@ -214,7 +221,18 @@ YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable
                 yesno.hide();
                 Y.one('#modal_bg').setStyle('display', 'none');
             });
-        });         
+        }); 
+        Y.one('.mvfile{{ forloop.counter }}').on('click', function() {
+            Y.one('#modal_path_head').set("innerHTML","Verschieben der Datei {{ item }}");
+            Y.one('#modal_path_details').set("innerHTML", "Sie m&ouml;chten jetzt eine Datei verschieben.");
+            modal_path.show();
+            Y.one('#modal_bg').setStyle('display', 'block');
+            Y.one('.modal_path_yes').on('click', function() {                
+                mvFile("{{ item }}","{{ forloop.counter }}");
+                modal_path.hide();
+                Y.one('#modal_bg').setStyle('display', 'none');
+            });
+        });        
 
         {% endfor %}
         {% for folder in resultdirlist %}
@@ -260,11 +278,16 @@ YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable
                         Y.one('li.folder'+arguments.id).setStyle('display', 'none');
                     },
         };
+        var mvFileHandler = {
+             success: function (transactionid, response, arguments) {
+                        Y.one('li.item'+arguments.id).setStyle('display', 'none');
+                    },
+        };
 
         function createNewFolder(foldername) {
             var cfg = {
                 method: "GET",
-                data: "path={{ currentpath }}",
+                data: "path={{ currentpath }}&folder="+foldername,
                 on: {
                         start: NewFolderHandler.start,
                         success: NewFolderHandler.success,
@@ -272,13 +295,13 @@ YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable
                 context: NewFolderHandler,
                 
             };
-            var request = Y.io('actions/newfolder/'+foldername, cfg);
+            var request = Y.io('actions/newfolder/', cfg);
         }
 
         function deleteFile(file_delete,id) {
             var cfg = {
                 method: "GET",
-                data: "path={{ currentpath }}",
+                data: "path={{ currentpath }}&filename="+file_delete,
                 on: {
                         success: deleteFileHandler.success,
                 },
@@ -287,13 +310,13 @@ YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable
                     "id": id,
                 },
             };
-            var request = Y.io('actions/rmfile/'+file_delete, cfg);
+            var request = Y.io('actions/rmfile/', cfg);
         }
 
         function deleteFolder(folder,id) {
             var cfg = {
                 method: "GET",
-                data: "path={{ currentpath }}",
+                data: "path={{ currentpath }}&folder="+folder,
                 on: {
                         success: deleteFolderHandler.success,
                 },
@@ -302,9 +325,22 @@ YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable
                     "id": id,
                 },
             };
-            var request = Y.io('actions/rmfolder/'+folder, cfg);
+            var request = Y.io('actions/rmfolder/', cfg);
         }
-
+        function mvFile(item, id) {
+            var cfg = {
+                method: "GET",
+                data: "path={{ currentpath }}&filepath="+Y.one('.modal_path_input').get('value')+"&filename="+item,
+                on: {
+                        success: mvFileHandler.success,
+                },
+                context: mvFileHandler,
+                arguments: {
+                    "id": id,
+                },
+            };
+            var request = Y.io('actions/mvfile/', cfg);
+        }
     });
 });
 </script>
@@ -343,7 +379,7 @@ YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable
 <li rel="{{ path }}/{{ item }}" class="folder{{ forloop.counter }}"><span><a href="?path={{ currentpath }}/{{ item }}">{{ item }}</a></span><span class="controls"><a href="#" id="removefolder{{ forloop.counter }}">[X]</a></li>
 {% endfor %}
 {% for item in filelist %}
-<li rel="{{ path }}/{{ item }}" class="item{{ forloop.counter }}"><span>{{ item }}</span><span class="controls"><a href="#" class="removefile{{ forloop.counter }}">[X]</a></li>
+<li rel="{{ path }}/{{ item }}" class="item{{ forloop.counter }}"><span>{{ item }}</span><span class="controls"><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></li>
 {% endfor %}
 {% else %}
 <li><strong>No Items available</strong></li>
@@ -374,6 +410,12 @@ YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable
 <h3 id="yesno_head"></h3>
 <p id="yesno_details"></p>
 <button class="yesno_yes">Yes</button><button class="yesno_no">Cancel</button>
+</div>
+<div id="modal_path" class="widgetgreen yui3-overlay yesno_drag modal draggable">
+<h3 id="modal_path_head"></h3>
+<p id="modal_path_details"></p>
+<input type="text" class="modal_path_input" />
+<button class="modal_path_yes">Ok</button><button class="modal_path_no">Cancel</button>
 </div>
 <footer class="widgetgreen">
 <h3>AjaxFileManager &copy; 2011 by Maik W&ouml;hl</h3>

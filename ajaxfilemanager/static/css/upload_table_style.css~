@@ -1,0 +1,21 @@
+table {
+    width: 100%;
+}
+
+thead {
+    background-color: #3F92D2;
+}
+
+thead th {
+    padding: 5px;
+    color: white;
+}
+
+tbody {
+    background-color: #66A3D2;
+}
+
+tbody td {
+    padding: 5px;
+    color: white;
+}

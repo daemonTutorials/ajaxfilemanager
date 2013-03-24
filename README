@@ -1,25 +1,23 @@
 Ajaxfilemanager
-Version: 0.1
-Built with: Django 1.3 - Python 2.7
+Version: 0.2
+Built with: Django 1.5 - Python 2.7.3
 
 This ajaxfilemanager based on python-django!
 
-Released with Django 1.3
+Released with Django 1.5
 
 Install
 =======
 
 It's easy:
 
- 1. Copy the complete repo(latest release in master) into your django-site-root
+ 1. Copy the complete repo(latest release in master) into your project folder
  2. Add the App to the INSTALLED_APPS
- 3. Edit the settings.py in the app-directory. Add the Media-Path. It is flexible. You can also fill in MEDIA_ROOT if you import the 'djangotest.settings'.
- 4. Copy the "ajaxfilemanager" directory into your template-directory
- 5. Add a URL-Rule to your urls.py in the django-site-root
+ 3. Copy the "templates" directory into your template-directory
+ 4. Add a URL-Rule to your urls.py in the django-site-root
     Example:
-    url(r^'ajaxfilemanager/$', 'ajaxfilemanager.urls'),
- 6. Edit Line 5 in the 'ajaxfilemanger/urls.py' and set 'djangotest' to the name of your site
-
+    url(r^'ajaxfilemanager/', include('ajaxfilemanager.urls')),
+ 5. Ensure that you activate 'staticfiles'
 Finish!
 
 Usage

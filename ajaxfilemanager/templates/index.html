@@ -4,10 +4,11 @@
 <head>
 <title>{{ ajaxfilemanager.settings.site_title }}</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<link rel="stylesheet" type="text/css" href="media/css/filemanager_style.css" />
-<link rel="stylesheet" type="text/css" href="media/css/widget.css" />
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/filemanager_style.css" />
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/widget.css" />
 <script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js" charset="utf-8"></script>
 <script type="text/javascript">
+
 function removeBkm(id)
 {
     YUI().use('node', function(Y) {
@@ -15,7 +16,7 @@ function removeBkm(id)
         localStorage.setItem('bookmarks', Y.one('#bookmarks').get('innerHTML'));
     });
 }
-YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable', 'resize', 'anim', function(Y) {
+YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overlay', 'dd-drag', 'io', 'sortable', 'resize', 'anim', function(Y) {
     Y.on('domready', function() {
         if(Y.one('#pathstring').get('innerHTML') == "{{ ajaxfilemanager.settings.file_directory }}")
         { Y.one('#pathmark').setStyle('display', 'none'); }
@@ -84,8 +85,11 @@ YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable
         });    
         modal_path.render();
         Y.one('.modal_path_no').on('click', function() { modal_path.hide();Y.one('#modal_bg').setStyle('display', 'none'); });
-
-        
+        Y.one('.modal_path_input').on('keydown',function(e) { 
+            if (e.keyCode == 13) {
+            Y.one('.modal_path_yes').simulate('click');
+            }
+        });
 
 
 
@@ -162,7 +166,7 @@ YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable
                 footerAnim.run();
                 footerAnim.on('end', function() {
                     Y.one('footer').setStyle('display', 'none');
-                    Y.one('#footer_display span').set('innerHTML', 'einblenden');
+                    Y.one('#footer_display span').set('innerHTML', 'on');
                     Y.one('#footer_display').set('rel', 'on');
                 });
             }
@@ -178,7 +182,7 @@ YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable
                 footerAnim.run();
                 footerAnim.on('end', function() {
                     Y.one('#footer_display').set('rel', 'off');
-                    Y.one('#footer_display span').set('innerHTML', 'ausblenden');
+                    Y.one('#footer_display span').set('innerHTML', 'off');
                 });
             }
         });
@@ -212,8 +216,8 @@ YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable
         });
         {% for item in filenames %}
         Y.one('.removefile{{ forloop.counter }}').on('click', function() {
-            Y.one('#yesno_head').set("innerHTML","Wollen sie die Datei {{ item }} wirklich l&ouml;schen?");
-            Y.one('#yesno_details').set("innerHTML", "Sie sind in Begriff eine Datei zu l&ouml;schen.");
+            Y.one('#yesno_head').set("innerHTML","Are you sure?");
+            Y.one('#yesno_details').set("innerHTML", "You want to be delete file {{ item }}.");
             yesno.show();
             Y.one('#modal_bg').setStyle('display', 'block');
             Y.one('.yesno_yes').on('click', function() {                
@@ -223,22 +227,32 @@ YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable
             });
         }); 
         Y.one('.mvfile{{ forloop.counter }}').on('click', function() {
-            Y.one('#modal_path_head').set("innerHTML","Verschieben der Datei {{ item }}");
-            Y.one('#modal_path_details').set("innerHTML", "Sie m&ouml;chten jetzt eine Datei verschieben.");
+            Y.one('#modal_path_head').set("innerHTML","Move file {{ item }}");
+            Y.one('#modal_path_details').set("innerHTML", "You move the file {{ item }} to the path you entered below.");
             modal_path.show();
             Y.one('#modal_bg').setStyle('display', 'block');
-            Y.one('.modal_path_yes').on('click', function() {                
-                mvFile("{{ item }}","{{ forloop.counter }}");
-                modal_path.hide();
-                Y.one('#modal_bg').setStyle('display', 'none');
+            Y.one('.modal_path_yes').on('click', function() {
+                if(Y.one('.modal_path_input').get('value') != "../") {                
+                    mvFile("{{ item }}","{{ forloop.counter }}");
+                    modal_path.hide();
+                    Y.one('#modal_bg').setStyle('display', 'none');
+                }
+                else {
+                    Y.one('.modal_path_input').set('value','Not allowed');
+                    Y.one('.modal_path_input').setStyle('color','red');
+                    window.setTimeout(function() {
+                    Y.one('.modal_path_input').set('value','');
+                    Y.one('.modal_path_input').setStyle('color','black');
+                    }, 1000);
+                }
             });
         });        
 
         {% endfor %}
         {% for folder in resultdirlist %}
         Y.one('#removefolder{{ forloop.counter }}').on('click', function() {
-            Y.one('#yesno_head').set("innerHTML","Wollen sie den Ordner {{ folder }} wirklich l&ouml;schen?");
-            Y.one('#yesno_details').set("innerHTML", "Sie sind in Begriff einen Ordner zu l&ouml;schen.");
+            Y.one('#yesno_head').set("innerHTML","Are you sure?");
+            Y.one('#yesno_details').set("innerHTML", "You want to delete the folder {{ folder }}");
             yesno.show();
             Y.one('#modal_bg').setStyle('display', 'block');
             Y.one('.yesno_yes').on('click', function() {                
@@ -263,7 +277,7 @@ YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable
                         newfolder.hide();                  
                         Y.one('#newfolder').setStyle('display', 'none');
                         Y.one('#folder').set('value', '');
-                        location.reload(true);
+                        Y.one('#reset-session').simulate('click');
                     },
         };
 
@@ -358,9 +372,9 @@ YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable
 <section id="widgets" class="widgetgreen">
 <h3>Widgets</h3>
 <ul>
-    <li><a href="#" id="footer_display" rel="on">Informationen <span>einblenden</span></a></li>
-    <li><a href="#" id="reset_session">Aktualisieren</a></li>
-    <li><a href="#" id="display_bookmarks" rel="on">Lesezeichen <span>einblenden</span></a></li>
+    <li><a href="#" id="footer_display" rel="on">Credits <span>on</span></a></li>
+    <li><a href="#" id="reset_session">Reload</a></li>
+    <li><a href="#" id="display_bookmarks" rel="on">Bookmarks <span>on</span></a></li>
 </ul>
 </section>
 <section id="marks" class="widgetgreen">
@@ -414,11 +428,12 @@ YUI().use('node', 'event-mouseenter', 'overlay', 'dd-drag', 'io-base', 'sortable
 <div id="modal_path" class="widgetgreen yui3-overlay yesno_drag modal draggable">
 <h3 id="modal_path_head"></h3>
 <p id="modal_path_details"></p>
-<input type="text" class="modal_path_input" />
+<label for="path">Path:</label>
+<input type="text" name="path" class="modal_path_input" />
 <button class="modal_path_yes">Ok</button><button class="modal_path_no">Cancel</button>
 </div>
 <footer class="widgetgreen">
-<h3>AjaxFileManager &copy; 2011 by Maik W&ouml;hl</h3>
+<h3>AjaxFileManager &copy; 2013 by Maik W&ouml;hl</h3>
 <a href="http://www.w3.org/html/logo/">
 <img src="http://www.w3.org/html/logo/badge/html5-badge-h-css3-graphics-performance-semantics-storage.png" width="261" height="64" alt="HTML5 Powered with CSS3 / Styling, Graphics, 3D &amp; Effects, Performance &amp; Integration, Semantics, and Offline &amp; Storage" title="HTML5 Powered with CSS3 / Styling, Graphics, 3D &amp; Effects, Performance &amp; Integration, Semantics, and Offline &amp; Storage">
 </a>

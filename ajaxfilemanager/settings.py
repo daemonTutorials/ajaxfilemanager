@@ -1,9 +1,9 @@
 #Settings File of the Explorer
-
+from development.settings import *
 # This are the settings
 settings = {
     "title": "AJAX File Manager",
-    "ajaxfm_media_root": "/home/maik/development/django/djangotest/media", 
+    "ajaxfm_media_root": MEDIA_ROOT, 
 }
 
 

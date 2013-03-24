@@ -1,6 +1,9 @@
 # Create your views here.
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.template import RequestContext
+from django.views.decorators.csrf import csrf_protect
+
 import ajaxfilemanager
 import os
 import subprocess
@@ -21,7 +24,7 @@ def findpath(path):
 
 
 def upload(request):
-    return render_to_response('ajaxfilemanager/upload.html', { 'ajaxfilemanager': ajaxfilemanager  })
+    return render_to_response('ajaxfilemanager/upload.html', { 'ajaxfilemanager': ajaxfilemanager  }, context_instance=RequestContext(request))
 
 def index(request):
     try:
@@ -63,7 +66,7 @@ def index(request):
             filelist[i] += " - ["+mimetypes[i]+"]"    
             
 
-        return render_to_response('ajaxfilemanager/index.html', { 'ajaxfilemanager': ajaxfilemanager, 'resultdirlist': resultdirlist, 'filelist': filelist, 'currentpath': currentpath, 'path': path, 'above': above, 'filenames': filenames })
+        return render_to_response('ajaxfilemanager/index.html', { 'ajaxfilemanager': ajaxfilemanager, 'resultdirlist': resultdirlist, 'filelist': filelist, 'currentpath': currentpath, 'path': path, 'above': above, 'filenames': filenames }, context_instance=RequestContext(request))
 
 def newfolder(request):
     try:
@@ -109,12 +112,21 @@ def rmfolder(request):
             return HttpResponse("Folder successfully deleted")
 
 def mvfile(request):
+    class InvalidPath(Exception):
+        def __init__(self, value):
+            self.value = value
+        def __str__(self):
+            return repr(self.value)
+
+
     try:
         path = request.GET['path']
         filepath = request.GET["filepath"]
         filename = request.GET["filename"]
-    except (KeyError):
+        
+    except KeyError:
         return HttpResponse("No path exist")
+        
     else:
         currentpath = path
         path = ajaxfilemanager.settings.file_directory+"/"+path
@@ -123,9 +135,9 @@ def mvfile(request):
             dst = ajaxfilemanager.settings.file_directory+"/"+filepath
             shutil.move(src, dst)
             return HttpResponse("File successfully moved")
-        
 
-    
-            
+@csrf_protect
+def handlefiles(request):
+    return HttpResponse(request.FILES[0].name)
 
     

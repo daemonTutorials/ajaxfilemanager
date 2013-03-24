@@ -3,69 +3,97 @@
 <head>
 <title>{{ ajaxfilemanager.settings.site_title }}</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<link rel="stylesheet" type="text/css" href="media/css/style.css" />
-<script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js" charset="utf-8"></script>
+<meta http-equiv="Access-Control-Allow-Origin" content="*">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/style.css" />
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/upload_table_style.css" />
+<script type="text/javascript" src="{{ STATIC_URL}}js/yui3.9.0-min.js" charset="utf-8"></script>
 <script type="text/javascript">
-YUI().use('uploader', function(Y) {
-    Y.on('domready', function() {
-        /* Classes */        
+YUI().use('uploader','io','cookie', function(Y) {
+        Y.io.header("Access-Control-Allow-Origin", "*");
+        Y.io.header("X-CSRFToken", Y.Cookie.get("csrftoken"));
+         if (Y.Uploader.TYPE != "none" && !Y.UA.ios) {
+            var uploader = new Y.Uploader({width: "250px",
+                                      height: "35px",
+                                      multipleFiles: true,
+                                      swfURL: "http://yui.yahooapis.com/3.9.0/build/uploader/assets/flashuploader.swf?t=" + Math.random(),
+                                      uploadURL: "uploader/",
+                                      simLimit: 2,
+                                      withCredentials: false
+                                     });
+            var uploadDone = false;
 
-        var uploader = new Y.Uploader({
-            boundingBox: '#selectButton',
-            transparent: false,
-            buttonSkin:"http://developer.yahoo.com/yui/3/examples/uploader/assets/selectFileButton.png"
-        });
-        /* Event Handler */
+            uploader.render("#selectFilesButtonContainer");
 
-        function echoInput() {
-            output = Y.one('#artist').get("value") + " " + Y.one('#album').get("value") + " " + Y.one('#year').get("value");
-            Y.one('#test').setContent(output);
-        }
-        Y.on('click', echoInput, '#echo_input');
+            uploader.after("fileselect", function (event) {
 
-        uploader.on("uploaderReady", setupUploader);
-        uploader.on("fileselect", fileSelect);        
-        uploader.on("uploadprogress", updateProgress);
-        uploader.on("uploadcomplete", uploadComplete);
-        uploader.on("uploadcompletedata", uploadCompleteData);
-
-        Y.one("#uploadButton").on('click', uploadFile);
-
-
-        /* Uploader Event Functions */
-
-        function setupUploader(event) {
-            uploader.set("multiFiles", false);
-            uploader.set("log", true);
-            
-            var fileFilters = new Array({description:"Audio files", extensions:"*.mp3;*.aac;*.ogg;*.wav"});
-            uploader.set("fileFilters", fileFilters);
-        }        
-    
-        function fileSelect(event) {
-            var fileData = event.fileList;
-            for (var key in fileData) {
-                var output = "File selected: "+ fileData[key].name;
-                Y.one("#filename").setContent(output);
+                var fileList = event.fileList;
+                var fileTable = Y.one("#filenames tbody");
+                if (fileList.length > 0 && Y.one("#nofiles")) {
+                    Y.one("#nofiles").remove();
             }
+
+            if (uploadDone) {
+                uploadDone = false;
+                fileTable.setHTML("");
+            }
+
+            var perFileVars = {};
+
+            Y.each(fileList, function (fileInstance) {
+              fileTable.append("<tr id='" + fileInstance.get("id") + "_row" + "'>" +
+                                    "<td class='filename'>" + fileInstance.get("name") + "</td>" +
+                                    "<td class='filesize'>" + fileInstance.get("size") + "</td>" +
+                                    "<td class='percentdone'>Hasn't started yet</td>");
+
+              perFileVars[fileInstance.get("id")] = {"csrfmiddlewaretoken":Y.Cookie.get("csrftoken")};
+            });
+
+            uploader.set("postVarsPerFile", Y.merge(uploader.get("postVarsPerFile"), perFileVars));
+            });
+            uploader.on("uploadprogress", function (event) {
+                var fileRow = Y.one("#" + event.file.get("id") + "_row");
+                    fileRow.one(".percentdone").set("text", event.percentLoaded + "%");
+            });
+
+            uploader.on("uploadstart", function (event) {
+                uploader.set("enabled", false);
+                Y.one("#uploadFilesButton").addClass("yui3-button-disabled");
+                Y.one("#uploadFilesButton").detach("click");
+            });
+
+            uploader.on("uploadcomplete", function (event) {
+                var fileRow = Y.one("#" + event.file.get("id") + "_row");
+                    fileRow.one(".percentdone").set("text", "Finished!");
+            });
+
+            uploader.on("totaluploadprogress", function (event) {
+                Y.one("#overallProgress").setHTML("Total uploaded: <strong>" + event.percentLoaded + "%" + "</strong>");
+            });
+
+            uploader.on("alluploadscomplete", function (event) {
+                     uploader.set("enabled", true);
+                     uploader.set("fileList", []);
+                     Y.one("#uploadFilesButton").removeClass("yui3-button-disabled");
+                     Y.one("#uploadFilesButton").on("click", function () {
+                          if (!uploadDone && uploader.get("fileList").length > 0) {
+                             uploader.uploadAll();
+                          }
+                     });
+                     Y.one("#overallProgress").set("text", "Uploads complete!");
+                     uploadDone = true;
+            });
+
+            Y.one("#uploadFilesButton").on("click", function () {
+                if (!uploadDone && uploader.get("fileList").length > 0) {
+                    uploader.uploadAll();
+                }
+            });
+        }
+        else {
+            Y.one("#uploaderContainer").set("text", "We are sorry, but to use the uploader, you either need a browser that support HTML5 or have the Flash player installed on your computer.");
         }
         
-        function updateProgress (event) {
-            Y.one("#percent").setContent("Percent uploaded: " + Math.round((100 * event.bytesLoaded / event.bytesTotal)) + "%");
-        }
-        
-        function uploadComplete (event) {
-            Y.one("#percent").setContent("Upload complete!");
-        }
-
-        function uploadCompleteData (event) {
-            Y.one("#result").setContent("Data returned from the server: <br>" + event.data);
-        }
-
-        function uploadFile (event) {
-            uploader.uploadAll("../uploader/", "POST", {artist:Y.one('#artist').get("value"), album:Y.one('#album').get("value"),year:Y.one('#year').get("value")});
-        }
-    });
+        Y.one("#overallProgress").set("text", "Uploader type: " + Y.Uploader.TYPE);
 
 });
 </script>
@@ -73,26 +101,31 @@ YUI().use('uploader', function(Y) {
 
 <body>
 <div id="container">
-<div id="upload_field">
-<a href="#" id="selectButton" style="width:100px; height: 40px;" >Select Files</a>
-<a href="#" id="uploadButton">Upload</a>
-<div id="filename"></div>
-<div id="percent"></div>
-<div id="result"></div>
-</div>
-<form name="id3_infos" charset="utf-8">
-<label for="artist">Artist</label>
-<input type="text" id="artist" name="artist" />
-<label for="album">Album</label>
-<input type="text" id="album" name="album" />
-<label for="year">Year</label>
-<input type="text" id="year" name="year" />
-</form>
-<a href="#" id="echo_input">Display Input Infos</a>
-<div id="test">
+<div id="uploaderContainer">
+   <div id="selectFilesButtonContainer">
+   </div>
+   <div id="uploadFilesButtonContainer">
+{% csrf_token %}
 
+     <button type="button" id="uploadFilesButton" class="yui3-button" style="width:250px; height:35px;">Upload Files</button>
+   </div>
+   <div id="overallProgress">
 </div>
 
+<div id="filelist">
+  <table id="filenames" cellspacing="1">
+    <thead>
+       <tr><th>File name</th><th>File size</th><th>Percent uploaded</th></tr>
+    </thead>
+    <tbody>
+    <tr id="nofiles">
+        <td colspan="3">
+            No files have been selected.
+        </td>
+       </tr>
+    </tbody>
+  </table>
+</div>
 </div>
 </body>
 </html>

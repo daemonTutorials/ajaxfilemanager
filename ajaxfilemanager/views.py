@@ -16,8 +16,9 @@ def findpath(path):
     above_pp.remove(above_pp[0])
     output = ""
     for tail in above_pp:
-        output += "/"+tail
-
+        output += tail
+    
+    output += "/"
     above = output[::-1]
     return above
 
@@ -32,9 +33,14 @@ def index(request):
         currentpath = path
     except (KeyError):
         return HttpResponseRedirect("/ajaxfilemanager/?path=/")
-    else:        
+    else:
+                    
         above = findpath(path)
-        path = ajaxfilemanager.settings.file_directory+"/"+path
+        if path != "/":
+            path = ajaxfilemanager.settings.file_directory+path[1:len(path)]
+        else:
+            path = ajaxfilemanager.settings.file_directory
+            
         resultdirlist = []        
         filelist = []
         filenames = []

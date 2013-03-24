@@ -131,4 +131,5 @@ footer { display: none; }
 
 #marks { width: 30%; }
 
+#modal_path, #yesno, #newfolder { display: none; }
 

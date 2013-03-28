@@ -3,6 +3,8 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 
 import ajaxfilemanager
 import os
@@ -144,6 +146,7 @@ def mvfile(request):
 
 @csrf_protect
 def handlefiles(request):
-    return HttpResponse(request.FILES[0].name)
+	uploadedFile = default_storage.save(ajaxfilemanager.settings.file_directory+request.POST["filename"], ContentFile(request.FILES["Filedata"].read()))
+	return HttpResponse("Success!")
 
     

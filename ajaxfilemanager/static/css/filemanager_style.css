@@ -57,14 +57,20 @@ background: linear-gradient(top, rgba(222,239,255,1) 0%,rgba(152,190,222,1) 100%
     padding-right: 20px;
 }
 
-.yui3-overlay {
-    width: 20em;
-}
 
-.yui3-overlay-close {
+#newfolder .yui3-overlay-close {
     position: absolute;
     top: -8%;
     left: 19em;
+    background-image: url(../images/close.png);
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+}
+#upload .yui3-overlay-close {
+    position: absolute;
+    top: -5%;
+    left: 98%;
     background-image: url(../images/close.png);
     width: 32px;
     height: 32px;
@@ -120,7 +126,13 @@ transition: all 200ms linear;
     border-radius: 5px;
 }
 
-footer { display: none; }
+
+#newfolder, #yesno, #modal_path {
+    width: 20em;
+}
+#uploadiframe { width: 700px; height: 300px; display: block;}
+#upload { width: 700px;}
+
 
 #marks { display:none; }
 

@@ -42,10 +42,10 @@ YUI().use('uploader','io','cookie', function(Y) {
             Y.each(fileList, function (fileInstance) {
               fileTable.append("<tr id='" + fileInstance.get("id") + "_row" + "'>" +
                                     "<td class='filename'>" + fileInstance.get("name") + "</td>" +
-                                    "<td class='filesize'>" + fileInstance.get("size") + "</td>" +
-                                    "<td class='percentdone'>Hasn't started yet</td>");
+                                    "<td class='filesize'>" + fileInstance.get("size") + " / " + fileInstance.get("type") +"</td>" +
+                                    "<td class='percentdone'>Hasn't started yet</td><td class='data'></td>");
 
-              perFileVars[fileInstance.get("id")] = {"csrfmiddlewaretoken":Y.Cookie.get("csrftoken")};
+              perFileVars[fileInstance.get("id")] = {"csrfmiddlewaretoken":Y.Cookie.get("csrftoken"), "filename":fileInstance.get("name"), "filetype":fileInstance.get("type")};
             });
 
             uploader.set("postVarsPerFile", Y.merge(uploader.get("postVarsPerFile"), perFileVars));
@@ -64,6 +64,7 @@ YUI().use('uploader','io','cookie', function(Y) {
             uploader.on("uploadcomplete", function (event) {
                 var fileRow = Y.one("#" + event.file.get("id") + "_row");
                     fileRow.one(".percentdone").set("text", "Finished!");
+                    fileRow.one(".data").set("text", event.data);
             });
 
             uploader.on("totaluploadprogress", function (event) {
@@ -115,11 +116,11 @@ YUI().use('uploader','io','cookie', function(Y) {
 <div id="filelist">
   <table id="filenames" cellspacing="1">
     <thead>
-       <tr><th>File name</th><th>File size</th><th>Percent uploaded</th></tr>
+       <tr><th>File name</th><th>File size / File Type</th><th>Percent uploaded</th><th>Server data</th></tr>
     </thead>
     <tbody>
     <tr id="nofiles">
-        <td colspan="3">
+        <td colspan="4">
             No files have been selected.
         </td>
        </tr>

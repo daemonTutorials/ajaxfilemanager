@@ -1,23 +1,23 @@
-===============
-Ajaxfilemanager
-===============
+# Ajaxfilemanager
 
-+--------------+---------------------------+
-| Version:     | 0.2                       |
-+--------------+---------------------------+
-| Built with:  | Django 1.5 - Python 2.7.3 |
-+--------------+---------------------------+
-
+<table>
+<tbody>
+<tr>
+<td>Version</td><td>0.2</td>
+</tr>
+<tr>
+<td>Built with</td><td>Django 1.5 - Python 2.7.3</td>
+</tr>
+</table>
 This ajaxfilemanager based on *python-django*!
 
 Released with **Django 1.5**
 
-Install
-=======
+## Install
 
 It's easy:
 
-1. Copy the complete App [1]_ folder into your project folder
+1. Copy the complete App<sup><a href="#1">[1]</a></sup> folder into your project folder
 2. Add the App to the INSTALLED_APPS
 3. Insert the path to the "template" directory in the "ajaxfilemanager" folder into your TEMPLATE_DIRS
 4. Add a URL-Rule to your urls.py in the django-site-root (Example: url(r^'ajaxfilemanager/', include('ajaxfilemanager.urls')), )
@@ -25,8 +25,7 @@ It's easy:
  
 Finish!
 
-Usage
-=====
+## Usage
 
 Serve to 'http://your.server.com/ajaxfilemanager'. You will be 
 redirect to 'http://your.server.com/ajaxfilemanager/?path=/'.
@@ -36,16 +35,16 @@ with "http://your.server.com/ajaxfilemanager/upload" this is still a
 security leak, because anyone can upload without have access to the
 filemanager. 
 
-TODO
-====
+## TODO
+
 
 * "Access denied" for direct usage of /upload.
 * Watch the media directory for changes and add them immediately to page.
    
    
-.. [1] | Directory Structure looks like this:
-       | -ajaxfilemanager-0.x/
-       | --ajaxfilemanager/ <--- Copy this directory
-       | --README
-       | --CHANGE
-       | --.gitignore
+**<a name="1">[1]</a>** Directory Structure looks like this:
+     -ajaxfilemanager-0.x/
+     --ajaxfilemanager/ <--- Copy this directory
+     --README
+     --CHANGE
+     --.gitignore

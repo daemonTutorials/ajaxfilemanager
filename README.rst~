@@ -47,9 +47,9 @@ TODO
    page.
    
    
-.. [1] | Directory Structure looks like this:
-       | -ajaxfilemanager-0.x/
-       | --ajaxfilemanager/ <--- Copy this directory
-       | --README
-       | --CHANGE
-       | --.gitignore
+.. [1] Directory Structure looks like this:
+       -ajaxfilemanager-0.x/
+       --ajaxfilemanager/ <--- Copy this directory
+       --README
+       --CHANGE
+       --.gitignore

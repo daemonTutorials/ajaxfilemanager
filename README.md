@@ -42,9 +42,4 @@ filemanager.
 * Watch the media directory for changes and add them immediately to page.
    
    
-**<a name="1">[1]</a>** Directory Structure looks like this:
-     -ajaxfilemanager-0.x/
-     --ajaxfilemanager/ <--- Copy this directory
-     --README
-     --CHANGE
-     --.gitignore
+**<a name="1">[1]</a>** Exactly called *ajaxfilemanager* and in this directory you find *views.py*, *models.py*, and *urls.py*

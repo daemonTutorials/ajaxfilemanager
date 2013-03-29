@@ -19,11 +19,8 @@ It's easy:
 
 1. Copy the complete App [1]_ folder into your project folder
 2. Add the App to the INSTALLED_APPS
-3. Insert the path to the "template" directory in the "ajaxfilemanager"
-    folder into your TEMPLATE_DIRS
-4. Add a URL-Rule to your urls.py in the django-site-root
-    Example:
-    url(r^'ajaxfilemanager/', include('ajaxfilemanager.urls')),
+3. Insert the path to the "template" directory in the "ajaxfilemanager" folder into your TEMPLATE_DIRS
+4. Add a URL-Rule to your urls.py in the django-site-root (Example: url(r^'ajaxfilemanager/', include('ajaxfilemanager.urls')), )
 5. Ensure that you activate 'staticfiles'
  
 Finish!
@@ -43,8 +40,7 @@ TODO
 ====
 
 * "Access denied" for direct usage of /upload.
-* Watch the media directory for changes and add them immediately to 
-   page.
+* Watch the media directory for changes and add them immediately to page.
    
    
 .. [1] | Directory Structure looks like this:

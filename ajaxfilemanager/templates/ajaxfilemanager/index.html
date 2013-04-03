@@ -49,7 +49,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
         
         
     Y.on('domready', function() {
-        if (get_url_param("path") == "/") {
+        if (get_url_param("path") == "") {
             Y.all('.directorycontrols').hide();
         }
         
@@ -118,7 +118,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
                 marksAnim.run();
                 marksAnim.on('end', function() {
                     Y.one('#marks').setStyle('display', 'none');
-                    Y.one('#display_bookmarks span').set('innerHTML', 'einblenden');
+                    Y.one('#display_bookmarks span').set('innerHTML', 'on');
                     Y.one('#display_bookmarks').set('rel', 'on');
                 });
                 localStorage.setItem('bkm_switch', 'off');
@@ -135,7 +135,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
                 marksAnim.run();
                 marksAnim.on('end', function() {
                     Y.one('#display_bookmarks').set('rel', 'off');
-                    Y.one('#display_bookmarks span').set('innerHTML', 'ausblenden');
+                    Y.one('#display_bookmarks span').set('innerHTML', 'off');
                 });
                 localStorage.setItem('bkm_switch', 'on');
             }
@@ -220,7 +220,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
         }); 
         Y.one('.mvfile{{ forloop.counter }}').on('click', function() {
             Y.one('#modal_path_head').set("innerHTML","Move file {{ item }}");
-            Y.one('#modal_path_details').set("innerHTML", "You move the file {{ item }} to the path you entered below. Use a leading slash!");
+            Y.one('#modal_path_details').set("innerHTML", "You move the file {{ item }} to the path you entered below. Leave it blank for root-directory.");
             modal_path.show();
             Y.one('#modal_bg').setStyle('display', 'block');
             Y.one('.modal_path_yes').on('click', function() {
@@ -383,14 +383,14 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
 <section id="filelist" class="widgetblue">
 <h3 id="path"><span id="pathstring">{{ path }}</span><span id="pathmark">[Add Mark]</span></h3>
 <ul class="sortable">
-<li rel="{{ ajaxfilemanager.settings.file_directory }}" class="directorycontrols"><a href="?path=/">[.]</a></li>
+<li rel="{{ ajaxfilemanager.settings.file_directory }}" class="directorycontrols"><a href="?path=">[.]</a></li>
 <li rel="{{ above }}"><a href="?path={{ above }}" class="directorycontrols">[..]</a></li>
 {% if resultdirlist or filelist %}
 {% for item in resultdirlist %}
-<li rel="{{ path }}/{{ item }}" class="folder{{ forloop.counter }}"><span><a href="?path={{ currentpath }}/{{ item }}">{{ item }}</a></span><span class="controls"><a href="#" id="removefolder{{ forloop.counter }}">[X]</a></li>
+<li rel="{{ path }}{{ item }}" class="folder{{ forloop.counter }}"><span><a href="?path={{ currentpath }}{{ item }}">{{ item }}</a></span><span class="controls"><a href="#" id="removefolder{{ forloop.counter }}">[X]</a></li>
 {% endfor %}
 {% for item in filelist %}
-<li rel="{{ path }}/{{ item }}" class="item{{ forloop.counter }}"><span>{{ item }}</span><span class="controls"><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></li>
+<li rel="{{ path }}{{ item }}" class="item{{ forloop.counter }}"><span>{{ item }}</span><span class="controls"><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></li>
 {% endfor %}
 {% else %}
 <li><strong>No Items available</strong></li>
@@ -440,7 +440,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
 <h3 id="modal_path_head"></h3>
 <p id="modal_path_details"></p>
 <label for="path">Path:</label>
-<input type="text" name="path" class="modal_path_input" placeholder="/Documents" />
+<input type="text" name="path" class="modal_path_input" placeholder="Documents/Work" />
 <button class="modal_path_yes">Ok</button><button class="modal_path_no">Cancel</button>
 </div>
 <footer class="widgetgreen">

@@ -28,9 +28,14 @@ Finish!
 ## Usage
 
 Serve to 'http://your.server.com/ajaxfilemanager'. You will be 
-redirect to 'http://your.server.com/ajaxfilemanager/?path=/'.
-The Path Syntax in the URL is simple. The '/' is the ajaxfm_media_root. 
-The rest is the original path. Currently you can access the uploader 
+redirect to 'http://your.server.com/ajaxfilemanager/?path='.
+The Path Syntax in the URL is simple. Nothing is the ajaxfm_media_root. 
+The rest is the original path. But if you enter *?path=/* you will be 
+redirect to *ajaxfilemanager/noroot* and get a message like **You are 
+not root, please go back.** because "/" is basically the root directory
+of your server. This has a technical reason of *os.path.join*
+
+Currently you can access the uploader 
 with "http://your.server.com/ajaxfilemanager/upload" this is still a
 security leak, because anyone can upload without have access to the
 filemanager. 
@@ -40,6 +45,6 @@ filemanager.
 
 * "Access denied" for direct usage of /upload.
 * Watch the media directory for changes and add them immediately to page.
-   
+* Authentication for access to ajaxfm   
    
 **<a name="1">[1]</a>** Exactly called *ajaxfilemanager* and in this directory you find *views.py*, *models.py*, and *urls.py*

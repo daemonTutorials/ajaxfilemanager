@@ -20,7 +20,7 @@ def findpath(path):
     for tail in above_pp:
         output += tail
     
-    output += "/"
+    output += ""
     above = output[::-1]
     return above
 
@@ -34,14 +34,18 @@ def index(request):
         path = request.GET['path']
         currentpath = path
     except (KeyError):
-        return HttpResponseRedirect("/ajaxfilemanager/?path=/")
+        return HttpResponseRedirect("/ajaxfilemanager/?path=")
     else:
                     
-        above = findpath(path)
-        if path != "/":
-            path = ajaxfilemanager.settings.file_directory+path[1:len(path)]
+        if path != "":
+            above = findpath(path)
         else:
-            path = ajaxfilemanager.settings.file_directory
+            above = ""
+                
+        if path != "/":
+            path = os.path.join(ajaxfilemanager.settings.file_directory,path) #[1:len(path)]
+        else:
+            return HttpResponseRedirect("/ajaxfilemanager/noroot")
             
         resultdirlist = []        
         filelist = []
@@ -84,7 +88,7 @@ def newfolder(request):
         return HttpResponse("No path exist")
     else:
         currentpath = path
-        path = ajaxfilemanager.settings.file_directory+"/"+path
+        path = os.path.join(ajaxfilemanager.settings.file_directory, path)
         if os.access(path, os.W_OK):
             os.chdir(path)
             os.mkdir(folder)
@@ -99,7 +103,8 @@ def rmfile(request):
         return HttpResponse("No path exist")
     else:
         currentpath = path
-        path = ajaxfilemanager.settings.file_directory+"/"+path
+        path = os.path.join(ajaxfilemanager.settings.file_directory,path)
+        print(path+" "+currentpath+" "+ajaxfilemanager.settings.file_directory)
         if os.access(path, os.W_OK):
             os.chdir(path)
             os.remove(filename)
@@ -113,7 +118,7 @@ def rmfolder(request):
         return HttpResponse("No path exist")
     else:
         currentpath = path
-        path = ajaxfilemanager.settings.file_directory+"/"+path
+        path = os.path.join(ajaxfilemanager.settings.file_directory,path)
         if os.access(path, os.W_OK):
             os.chdir(path)
             os.rmdir(folder)
@@ -137,10 +142,10 @@ def mvfile(request):
         
     else:
         currentpath = path
-        path = ajaxfilemanager.settings.file_directory+"/"+path
+        path = os.path.join(ajaxfilemanager.settings.file_directory,path)
         if os.access(path, os.W_OK):
-            src = path+"/"+filename
-            dst = ajaxfilemanager.settings.file_directory+"/"+filepath
+            src = os.path.join(path,filename)
+            dst = os.path.join(ajaxfilemanager.settings.file_directory,filepath)
             shutil.move(src, dst)
             return HttpResponse("File successfully moved")
 
@@ -148,5 +153,8 @@ def mvfile(request):
 def handlefiles(request):
 	uploadedFile = default_storage.save(ajaxfilemanager.settings.file_directory+request.POST["filename"], ContentFile(request.FILES["Filedata"].read()))
 	return HttpResponse("Success!")
+    
+def noroot(request):
+    return HttpResponse("You are not root and can't access to '/'. Please go <a href='../?path='>back</a>.")
 
     

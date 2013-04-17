@@ -53,8 +53,8 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
             Y.all('.directorycontrols').hide();
         }
         
-        if(Y.one('#pathstring').get('innerHTML') == "{{ ajaxfilemanager.settings.file_directory }}")
-        { Y.one('#pathmark').setStyle('display', 'none'); }
+        if(Y.one('.pathstring').get('innerHTML') == "{{ ajaxfilemanager.settings.file_directory }}")
+        { Y.one('.pathmark').setStyle('display', 'none'); }
         if(localStorage.getItem('requestpath'))
         {
             location.href = "?path="+localStorage.getItem('requestpath');
@@ -140,8 +140,8 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
                 localStorage.setItem('bkm_switch', 'on');
             }
         });
-        Y.one('#pathmark').on('click', function() {
-            var path = Y.one('#pathstring').get('innerHTML');
+        Y.one('.pathmark').on('click', function() {
+            var path = Y.one('.pathstring').get('innerHTML');
             var currentpath = path.replace("{{ ajaxfilemanager.settings.file_directory }}", "base::");
              
             if (!localStorage.getItem("bookmarks"))
@@ -379,10 +379,10 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
 <table id="bookmarks">
 
 </table>
-</section>
+</section><!--
 <section id="filelist" class="widgetblue">
 <h3 id="path"><span id="pathstring">{{ path }}</span><span id="pathmark">[Add Mark]</span></h3>
-<ul class="sortable">
+<ul>
 <li rel="{{ ajaxfilemanager.settings.file_directory }}" class="directorycontrols"><a href="?path=">[.]</a></li>
 <li rel="{{ above }}"><a href="?path={{ above }}" class="directorycontrols">[..]</a></li>
 {% if resultdirlist or filelist %}
@@ -396,6 +396,35 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
 <li><strong>No Items available</strong></li>
 {% endif %}
 </ul>
+</section> -->
+<section id="filelist2">
+<table cellspacing="0">
+    <thead><th colspan="2"class="path"><span class="pathstring">{{ path }}</span></th><th><span class="pathmark">[Add Mark]</span></th></thead>
+    <tbody>
+        <tr>
+        <td colspan="3" rel="{{ ajaxfilemanager.settings.file_directory }}" class="directorycontrols"><a href="?path=">[.]</a></td>
+        </tr>
+        <tr>
+        <td colspan="3" rel="{{ above }}"><a href="?path={{ above }}" class="directorycontrols">[..]</a></td>
+        </tr>
+        {% if resultdirlist or filelist %}
+            {% for item in resultdirlist %}
+            <tr>
+            <td colspan="2" rel="{{ path }}{{ item }}" class="folder{{ forloop.counter }}"><span><a href="?path={{ currentpath }}{{ item }}">{{ item }}</a></span></td><td><span class="controls"><a href="#" id="removefolder{{ forloop.counter }}">[X]</a></td>
+            </tr>
+            {% endfor %}
+            {% for item, mime in filemime %}
+            <tr>
+            <td rel="{{ path }}{{ item }}" class="item{{ forloop.counter }}"><span>{{ item }}</span></td><td>{{ mime }}</td><td><span class="controls"><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+            <td colspan="3"><strong>No Items available</strong></td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
 </section>
 </div>
 

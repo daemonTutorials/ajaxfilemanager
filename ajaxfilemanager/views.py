@@ -50,7 +50,8 @@ def index(request):
         resultdirlist = []        
         filelist = []
         filenames = []
-        mimetypes = []        
+        mimetypes = []  
+        filemime = []      
         dirlist = os.listdir(path)
         for item in dirlist:
             if os.path.isfile(os.path.join(path, item)) == False:
@@ -75,10 +76,11 @@ def index(request):
         
 
         for i in range(len(filelist)):
-            filelist[i] += " - ["+mimetypes[i]+"]"    
+            #filelist[i] += " - ["+mimetypes[i]+"]"   
+            filemime.append([filelist[i],mimetypes[i]])
             
 
-        return render_to_response('ajaxfilemanager/index.html', { 'ajaxfilemanager': ajaxfilemanager, 'resultdirlist': resultdirlist, 'filelist': filelist, 'currentpath': currentpath, 'path': path, 'above': above, 'filenames': filenames }, context_instance=RequestContext(request))
+        return render_to_response('ajaxfilemanager/index.html', { 'ajaxfilemanager': ajaxfilemanager, 'resultdirlist': resultdirlist, 'filelist': filelist, 'currentpath': currentpath, 'path': path, 'above': above, 'filenames': filenames, 'filemime': filemime }, context_instance=RequestContext(request))
 
 def newfolder(request):
     try:

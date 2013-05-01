@@ -17,8 +17,16 @@ function removeBkm(id)
         localStorage.setItem('bookmarks', Y.one('#bookmarks').get('innerHTML'));
     });
 }
+function hideDirectoryControls()
+{
+    YUI().use('node', function(Y) {
+    if (get_url_param("path") == "") {
+        Y.all('.directorycontrols').hide();
+        Y.all('.pathmark').hide();
+    }});
+}
 YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overlay', 'dd-drag', 'io', 'sortable', 'resize', 'anim', function(Y) {
-
+    hideDirectoryControls();
         /* Classes */  
     var newfolder = new Y.Overlay({
             srcNode: "#newfolder",
@@ -49,12 +57,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
         
         
     Y.on('domready', function() {
-        if (get_url_param("path") == "") {
-            Y.all('.directorycontrols').hide();
-        }
-        
-        if(Y.one('.pathstring').get('innerHTML') == "{{ ajaxfilemanager.settings.file_directory }}")
-        { Y.one('.pathmark').setStyle('display', 'none'); }
+
         if(localStorage.getItem('requestpath'))
         {
             location.href = "?path="+localStorage.getItem('requestpath');
@@ -102,6 +105,61 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
             }
         });
 
+
+ {% for item in filenames %}
+        Y.one('.removefile{{ forloop.counter }}').on('click', function() {
+            Y.one('#yesno_head').set("innerHTML","Are you sure?");
+            Y.one('#yesno_details').set("innerHTML", "You want to be delete file {{ item }}.");
+            yesno.show();
+            Y.one('#modal_bg').setStyle('display', 'block');
+            Y.one('.yesno_yes').on('click', function() {                
+                deleteFile("{{ item }}", "{{ forloop.counter }}");
+                yesno.hide();
+                Y.one('#modal_bg').setStyle('display', 'none');
+            });
+        }); 
+        Y.one('.mvfile{{ forloop.counter }}').on('click', function() {
+            Y.one('#modal_path_head').set("innerHTML","Move file {{ item }}");
+            Y.one('#modal_path_details').set("innerHTML", "You move the file {{ item }} to the path you entered below. Leave it blank for root-directory.");
+            modal_path.show();
+            Y.one('#modal_bg').setStyle('display', 'block');
+            Y.one('.modal_path_yes').on('click', function() {
+            
+                /*if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {
+                    console.log("no");
+                }
+                else { console.log("yes"); } */
+                if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {                
+                    mvFile("{{ item }}","{{ forloop.counter }}");
+                    modal_path.hide();
+                    Y.one('#modal_bg').setStyle('display', 'none');
+                }
+                else {
+                    Y.one('.modal_path_input').set('value','Not allowed');
+                    Y.one('.modal_path_input').setStyle('color','red');
+                    window.setTimeout(function() {
+                    Y.one('.modal_path_input').set('value','');
+                    Y.one('.modal_path_input').setStyle('color','black');
+                    }, 1000);
+                }
+            });
+        });        
+
+        {% endfor %}
+        {% for folder in resultdirlist %}
+        Y.one('#removefolder{{ forloop.counter }}').on('click', function() {
+            Y.one('#yesno_head').set("innerHTML","Are you sure?");
+            Y.one('#yesno_details').set("innerHTML", "You want to delete the folder {{ folder }}");
+            yesno.show();
+            Y.one('#modal_bg').setStyle('display', 'block');
+            Y.one('.yesno_yes').on('click', function() {                
+                deleteFolder("{{ folder }}", "{{ forloop.counter }}");
+                yesno.hide();
+                Y.one('#modal_bg').setStyle('display', 'none');
+            });
+        });         
+
+        {% endfor %}
 
 
         /* Event Handler */
@@ -171,7 +229,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
 		});
         Y.one('#reset_session').on('click', function() {
             var containerOut = new Y.Anim({
-                node: '#container',
+                node: 'body',
                 to: {
                     opacity: 0,
                 }
@@ -179,17 +237,24 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
             containerOut.run();
             containerOut.on('end', function() {
                 
-                Y.one('#container').set('innerHTML', '');
+                Y.one('body').set('innerHTML', '');
                 location.reload(true);
                 
             });
         });
         Y.all('.yui3-overlay-close').on('click', function(e) {
+            /* Reload after Upload-Window-Close-Event */
+            if (Y.one('#upload').getStyle('display') == 'block')
+            {
+                Y.one('#reset_session').simulate('click');
+            }
+            
             /* Fill all Overlays here */            
             Y.one('#newfolder').setStyle('display', 'none');
             newfolder.hide();
             Y.one('#upload').setStyle('display', 'none');
             upload.hide();
+            
         });
 
         Y.one('#newfolder_btn_create').on('click', function() {
@@ -206,60 +271,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
             var requestpath = location.href.split('=')[1];
             localStorage.setItem('requestpath', requestpath);
         });
-        {% for item in filenames %}
-        Y.one('.removefile{{ forloop.counter }}').on('click', function() {
-            Y.one('#yesno_head').set("innerHTML","Are you sure?");
-            Y.one('#yesno_details').set("innerHTML", "You want to be delete file {{ item }}.");
-            yesno.show();
-            Y.one('#modal_bg').setStyle('display', 'block');
-            Y.one('.yesno_yes').on('click', function() {                
-                deleteFile("{{ item }}", "{{ forloop.counter }}");
-                yesno.hide();
-                Y.one('#modal_bg').setStyle('display', 'none');
-            });
-        }); 
-        Y.one('.mvfile{{ forloop.counter }}').on('click', function() {
-            Y.one('#modal_path_head').set("innerHTML","Move file {{ item }}");
-            Y.one('#modal_path_details').set("innerHTML", "You move the file {{ item }} to the path you entered below. Leave it blank for root-directory.");
-            modal_path.show();
-            Y.one('#modal_bg').setStyle('display', 'block');
-            Y.one('.modal_path_yes').on('click', function() {
-            
-                /*if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {
-                    console.log("no");
-                }
-                else { console.log("yes"); } */
-                if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {                
-                    mvFile("{{ item }}","{{ forloop.counter }}");
-                    modal_path.hide();
-                    Y.one('#modal_bg').setStyle('display', 'none');
-                }
-                else {
-                    Y.one('.modal_path_input').set('value','Not allowed');
-                    Y.one('.modal_path_input').setStyle('color','red');
-                    window.setTimeout(function() {
-                    Y.one('.modal_path_input').set('value','');
-                    Y.one('.modal_path_input').setStyle('color','black');
-                    }, 1000);
-                }
-            });
-        });        
-
-        {% endfor %}
-        {% for folder in resultdirlist %}
-        Y.one('#removefolder{{ forloop.counter }}').on('click', function() {
-            Y.one('#yesno_head').set("innerHTML","Are you sure?");
-            Y.one('#yesno_details').set("innerHTML", "You want to delete the folder {{ folder }}");
-            yesno.show();
-            Y.one('#modal_bg').setStyle('display', 'block');
-            Y.one('.yesno_yes').on('click', function() {                
-                deleteFolder("{{ folder }}", "{{ forloop.counter }}");
-                yesno.hide();
-                Y.one('#modal_bg').setStyle('display', 'none');
-            });
-        });         
-
-        {% endfor %}
+        
         /* AJAX */
         
 
@@ -280,20 +292,21 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
 
         var deleteFileHandler = {
              success: function (transactionid, response, arguments) {
-                        Y.one('li.item'+arguments.id).setStyle('display', 'none');
+                        Y.one('tr.item'+arguments.id).setStyle('display', 'none');
                     },
         };
 
         var deleteFolderHandler = {
              success: function (transactionid, response, arguments) {
-                        Y.one('li.folder'+arguments.id).setStyle('display', 'none');
+                        Y.one('tr.folder'+arguments.id).setStyle('display', 'none');
                     },
         };
         var mvFileHandler = {
-             success: function (transactionid, response, arguments) {
-                        Y.one('li.item'+arguments.id).setStyle('display', 'none');
+            success: function (transactionid, response, arguments) {
+                        Y.one('tr.item'+arguments.id).setStyle('display', 'none');
                     },
         };
+        
 
         function createNewFolder(foldername) {
             var cfg = {
@@ -352,6 +365,31 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
             };
             var request = Y.io('actions/mvfile/', cfg);
         }
+        
+        /* Watchdog */
+        
+        var watchdogHandler = {
+            success: function (transactionid, response, arguments) {
+                if (Y.one('#fm').get('innerHTML') != response.responseText)
+                {
+                    Y.one('#reset_session').simulate('click');
+                }
+            },
+        };
+        function watchdog() {
+            var cfg = {
+                method: "GET",
+                data: "ajax=true&path={{ currentpath }}",
+                on: {
+                        success: watchdogHandler.success,
+                },
+                context: watchdogHandler,
+            };
+            var request = Y.io('index/', cfg);
+        }
+        
+        window.setInterval(watchdog, 10000);
+
     });
 });
 </script>
@@ -400,22 +438,22 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
 <section id="filelist2">
 <table cellspacing="0">
     <thead><th colspan="2"class="path"><span class="pathstring">{{ path }}</span></th><th><span class="pathmark">[Add Mark]</span></th></thead>
-    <tbody>
-        <tr>
+    <tr>
         <td colspan="3" rel="{{ ajaxfilemanager.settings.file_directory }}" class="directorycontrols"><a href="?path=">[.]</a></td>
         </tr>
         <tr>
         <td colspan="3" rel="{{ above }}"><a href="?path={{ above }}" class="directorycontrols">[..]</a></td>
         </tr>
+    <tbody id="fm">
         {% if resultdirlist or filelist %}
             {% for item in resultdirlist %}
-            <tr>
-            <td colspan="2" rel="{{ path }}{{ item }}" class="folder{{ forloop.counter }}"><span><a href="?path={{ currentpath }}{{ item }}">{{ item }}</a></span></td><td><span class="controls"><a href="#" id="removefolder{{ forloop.counter }}">[X]</a></td>
+            <tr  class="folder{{ forloop.counter }}">
+            <td colspan="2" rel="{{ path }}{{ item }}"><span><a href="?path={{ currentpath }}{{ item }}">{{ item }}</a></span></td><td><span class="controls"><a href="#" id="removefolder{{ forloop.counter }}">[X]</a></span></td>
             </tr>
             {% endfor %}
             {% for item, mime in filemime %}
-            <tr>
-            <td rel="{{ path }}{{ item }}" class="item{{ forloop.counter }}"><span>{{ item }}</span></td><td>{{ mime }}</td><td><span class="controls"><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></td>
+            <tr class="item{{ forloop.counter }}">
+            <td rel="{{ path }}{{ item }}"><span>{{ item }}</span></td><td>{{ mime }}</td><td><span class="controls"><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></span></td>
             </tr>
             {% endfor %}
         {% else %}
@@ -423,7 +461,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
             <td colspan="3"><strong>No Items available</strong></td>
             </tr>
         {% endif %}
-    </tbody>
+</tbody>
 </table>
 </section>
 </div>

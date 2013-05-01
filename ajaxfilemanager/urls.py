@@ -3,6 +3,7 @@ from ajaxfilemanager.settings import *
 
 urlpatterns = patterns('',
     url(r'^$', 'ajaxfilemanager.views.index', name='index'),
+    url(r'^index/$', 'ajaxfilemanager.views.index', name='index'), 
     url(r'^actions/newfolder/$', 'ajaxfilemanager.views.newfolder', name='newfolder'),
     url(r'^actions/rmfile/$', 'ajaxfilemanager.views.rmfile', name='rmfile'),
     url(r'^actions/rmfolder/$', 'ajaxfilemanager.views.rmfolder', name='rmfolder'),

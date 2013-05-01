@@ -1,0 +1,17 @@
+
+        {% if resultdirlist or filelist %}
+            {% for item in resultdirlist %}
+            <tr class="folder{{ forloop.counter }}">
+            <td colspan="2" rel="{{ path }}{{ item }}"><span><a href="?path={{ currentpath }}{{ item }}">{{ item }}</a></span></td><td><span class="controls"><a href="#" id="removefolder{{ forloop.counter }}">[X]</a></span></td>
+            </tr>
+            {% endfor %}
+            {% for item, mime in filemime %}
+            <tr class="item{{ forloop.counter }}">
+            <td rel="{{ path }}{{ item }}"><span>{{ item }}</span></td><td>{{ mime }}</td><td><span class="controls"><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></span></td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+            <td colspan="3"><strong>No Items available</strong></td>
+            </tr>
+        {% endif %}

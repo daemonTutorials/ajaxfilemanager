@@ -31,6 +31,11 @@ def upload(request):
 
 def index(request):
     try:
+        ajax = request.GET['ajax']
+    except (KeyError):
+        ajax = ""
+             
+    try:
         path = request.GET['path']
         currentpath = path
     except (KeyError):
@@ -79,8 +84,10 @@ def index(request):
             #filelist[i] += " - ["+mimetypes[i]+"]"   
             filemime.append([filelist[i],mimetypes[i]])
             
-
-        return render_to_response('ajaxfilemanager/index.html', { 'ajaxfilemanager': ajaxfilemanager, 'resultdirlist': resultdirlist, 'filelist': filelist, 'currentpath': currentpath, 'path': path, 'above': above, 'filenames': filenames, 'filemime': filemime }, context_instance=RequestContext(request))
+        if not ajax:
+            return render_to_response('ajaxfilemanager/index.html', { 'ajaxfilemanager': ajaxfilemanager, 'resultdirlist': resultdirlist, 'filelist': filelist, 'currentpath': currentpath, 'path': path, 'above': above, 'filenames': filenames, 'filemime': filemime }, context_instance=RequestContext(request))
+        elif ajax == "true":
+            return render_to_response('ajaxfilemanager/directory_listing.html', { 'ajaxfilemanager': ajaxfilemanager, 'resultdirlist': resultdirlist, 'filelist': filelist, 'currentpath': currentpath, 'path': path, 'above': above, 'filenames': filenames, 'filemime': filemime }, context_instance=RequestContext(request)) 
 
 def newfolder(request):
     try:

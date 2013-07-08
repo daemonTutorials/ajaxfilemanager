@@ -1,5 +1,5 @@
 #Settings File of the Explorer
-from development.settings import *
+from Development.settings import *
 # This are the settings
 # MediaRoot with trailing slash!
 settings = {

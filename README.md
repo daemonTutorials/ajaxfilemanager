@@ -22,6 +22,7 @@ It's easy:
 3. Insert the path to the "template" directory in the "ajaxfilemanager" folder into your TEMPLATE_DIRS
 4. Add a URL-Rule to your urls.py in the django-site-root (Example: url(r^'ajaxfilemanager/', include('ajaxfilemanager.urls')), )
 5. Ensure that you activate 'staticfiles'
+6. Edit the 'settings.py' in the ajaxfilemanager directory and import YOUR global project settings. 
  
 Finish!
 

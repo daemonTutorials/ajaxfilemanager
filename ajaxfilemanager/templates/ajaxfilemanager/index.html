@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de" xml:lang="de">
 <head>
@@ -9,7 +8,6 @@
 <script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js" charset="utf-8"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/geturlparam.js"></script>
 <script type="text/javascript">
-
 function removeBkm(id)
 {
     YUI().use('node', function(Y) {
@@ -23,7 +21,8 @@ function hideDirectoryControls()
     if (get_url_param("path") == "") {
         Y.all('.directorycontrols').hide();
         Y.all('.pathmark').hide();
-    }});
+    }
+    });
 }
 YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overlay', 'dd-drag', 'io', 'sortable', 'resize', 'anim', function(Y) {
     hideDirectoryControls();
@@ -107,6 +106,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
 
 
  {% for item in filenames %}
+		/* Remove file */
         Y.one('.removefile{{ forloop.counter }}').on('click', function() {
             Y.one('#yesno_head').set("innerHTML","Are you sure?");
             Y.one('#yesno_details').set("innerHTML", "You want to be delete file {{ item }}.");
@@ -117,7 +117,35 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
                 yesno.hide();
                 Y.one('#modal_bg').setStyle('display', 'none');
             });
-        }); 
+        });
+        /* Copy file */
+          Y.one('.cpfile{{ forloop.counter }}').on('click', function() {
+            Y.one('#modal_path_head').set("innerHTML","Copy file {{ item }}");
+            Y.one('#modal_path_details').set("innerHTML", "You copy the file {{ item }} to the path you entered below. Leave it blank for root-directory.");
+            modal_path.show();
+            Y.one('#modal_bg').setStyle('display', 'block');
+            Y.one('.modal_path_yes').on('click', function() {
+            
+                /*if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {
+                    console.log("no");
+                }
+                else { console.log("yes"); } */
+                if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {                
+                    cpFile("{{ item }}","{{ forloop.counter }}");
+                    modal_path.hide();
+                    Y.one('#modal_bg').setStyle('display', 'none');
+                }
+                else {
+                    Y.one('.modal_path_input').set('value','Not allowed');
+                    Y.one('.modal_path_input').setStyle('color','red');
+                    window.setTimeout(function() {
+                    Y.one('.modal_path_input').set('value','');
+                    Y.one('.modal_path_input').setStyle('color','black');
+                    }, 1000);
+                }
+            });
+        });
+            /* Move File */
         Y.one('.mvfile{{ forloop.counter }}').on('click', function() {
             Y.one('#modal_path_head').set("innerHTML","Move file {{ item }}");
             Y.one('#modal_path_details').set("innerHTML", "You move the file {{ item }} to the path you entered below. Leave it blank for root-directory.");
@@ -147,7 +175,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
 
         {% endfor %}
         {% for folder in resultdirlist %}
-        Y.one('#removefolder{{ forloop.counter }}').on('click', function() {
+        Y.one('.removefolder{{ forloop.counter }}').on('click', function() {
             Y.one('#yesno_head').set("innerHTML","Are you sure?");
             Y.one('#yesno_details').set("innerHTML", "You want to delete the folder {{ folder }}");
             yesno.show();
@@ -158,6 +186,60 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
                 Y.one('#modal_bg').setStyle('display', 'none');
             });
         });         
+        /* Copy folder */
+          Y.one('.cpfolder{{ forloop.counter }}').on('click', function() {
+            Y.one('#modal_path_head').set("innerHTML","Copy folder {{ item }}");
+            Y.one('#modal_path_details').set("innerHTML", "You copy the folder {{ item }} to the path you entered below. Leave it blank for root-directory.");
+            modal_path.show();
+            Y.one('#modal_bg').setStyle('display', 'block');
+            Y.one('.modal_path_yes').on('click', function() {
+            
+                /*if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {
+                    console.log("no");
+                }
+                else { console.log("yes"); } */
+                if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {                
+                    cpFolder("{{ folder }}","{{ forloop.counter }}");
+                    modal_path.hide();
+                    Y.one('#modal_bg').setStyle('display', 'none');
+                }
+                else {
+                    Y.one('.modal_path_input').set('value','Not allowed');
+                    Y.one('.modal_path_input').setStyle('color','red');
+                    window.setTimeout(function() {
+                    Y.one('.modal_path_input').set('value','');
+                    Y.one('.modal_path_input').setStyle('color','black');
+                    }, 1000);
+                }
+            });
+        });
+            /* Move Folder */
+        Y.one('.mvfolder{{ forloop.counter }}').on('click', function() {
+            Y.one('#modal_path_head').set("innerHTML","Move folder {{ item }}");
+            Y.one('#modal_path_details').set("innerHTML", "You move the folder {{ item }} to the path you entered below. Leave it blank for root-directory.");
+            modal_path.show();
+            Y.one('#modal_bg').setStyle('display', 'block');
+            Y.one('.modal_path_yes').on('click', function() {
+            
+                /*if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {
+                    console.log("no");
+                }
+                else { console.log("yes"); } */
+                if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {                
+                    mvFile("{{ folder }}","{{ forloop.counter }}");
+                    modal_path.hide();
+                    Y.one('#modal_bg').setStyle('display', 'none');
+                }
+                else {
+                    Y.one('.modal_path_input').set('value','Not allowed');
+                    Y.one('.modal_path_input').setStyle('color','red');
+                    window.setTimeout(function() {
+                    Y.one('.modal_path_input').set('value','');
+                    Y.one('.modal_path_input').setStyle('color','black');
+                    }, 1000);
+                }
+            });
+        });    
 
         {% endfor %}
 
@@ -254,6 +336,8 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
             newfolder.hide();
             Y.one('#upload').setStyle('display', 'none');
             upload.hide();
+            Y.one('#modal_path').setStyle('display', 'none');
+            Y.one('#yesno').setStyle('display', 'none');
             
         });
 
@@ -289,16 +373,40 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
                         Y.one('#reset_session').simulate('click');
                     },
         };
-
+        var cpFolderHandler = {
+            success: function (transactionid, response, arguments) {
+                        Y.one('#msgbox').setStyle('color', 'white');
+                        Y.one('#msgbox').setStyle('background-color', 'green');
+                        Y.one('#msgbox').setStyle('font-weight', 'bold');
+                        Y.one('#msgbox').set('innerHTML', 'Copied!');
+                        window.setTimeout(function(){
+                        Y.one('#msgbox').setStyle('display','none'); }, 1000);
+                    },
+        };
+        var mvFolderHandler = {
+            success: function (transactionid, response, arguments) {
+                        Y.one('tr.item'+arguments.id).setStyle('display', 'none');
+                    },
+        };
+        var deleteFolderHandler = {
+             success: function (transactionid, response, arguments) {
+                        Y.one('tr.folder'+arguments.id).setStyle('display', 'none');
+                    },
+        };
+        
         var deleteFileHandler = {
              success: function (transactionid, response, arguments) {
                         Y.one('tr.item'+arguments.id).setStyle('display', 'none');
                     },
         };
-
-        var deleteFolderHandler = {
-             success: function (transactionid, response, arguments) {
-                        Y.one('tr.folder'+arguments.id).setStyle('display', 'none');
+        var cpFileHandler = {
+            success: function (transactionid, response, arguments) {
+                        Y.one('#msgbox').setStyle('color', 'white');
+                        Y.one('#msgbox').setStyle('background-color', 'green');
+                        Y.one('#msgbox').setStyle('font-weight', 'bold');
+                        Y.one('#msgbox').set('innerHTML', 'Copied!');
+                        window.setTimeout(function(){
+                        Y.one('#msgbox').setStyle('display','none'); }, 1000);
                     },
         };
         var mvFileHandler = {
@@ -306,7 +414,6 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
                         Y.one('tr.item'+arguments.id).setStyle('display', 'none');
                     },
         };
-        
 
         function createNewFolder(foldername) {
             var cfg = {
@@ -365,14 +472,58 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
             };
             var request = Y.io('actions/mvfile/', cfg);
         }
+        function cpFile(item, id) {
+            var cfg = {
+                method: "GET",
+                data: "path={{ currentpath }}&folderpath="+Y.one('.modal_path_input').get('value')+"&foldername="+item,
+                on: {
+                        success: cpFileHandler.success,
+                },
+                context: cpFileHandler,
+                arguments: {
+                    "id": id,
+                },
+            };
+            var request = Y.io('actions/cpfile/', cfg);
+        }
+        function mvFolder(item, id) {
+            var cfg = {
+                method: "GET",
+                data: "path={{ currentpath }}&folderpath="+Y.one('.modal_path_input').get('value')+"&foldername="+item,
+                on: {
+                        success: mvFolderHandler.success,
+                },
+                context: mvFolderHandler,
+                arguments: {
+                    "id": id,
+                },
+            };
+            var request = Y.io('actions/mvfolder/', cfg);
+        }
+        function cpFolder(item, id) {
+            var cfg = {
+                method: "GET",
+                data: "path={{ currentpath }}&filepath="+Y.one('.modal_path_input').get('value')+"&filename="+item,
+                on: {
+                        success: cpFolderHandler.success,
+                },
+                context: cpFolderHandler,
+                arguments: {
+                    "id": id,
+                },
+            };
+            var request = Y.io('actions/cpfolder/', cfg);
+        }
         
         /* Watchdog */
         
         var watchdogHandler = {
             success: function (transactionid, response, arguments) {
+                /* console.log(response.responseText); */
                 if (Y.one('#fm').get('innerHTML') != response.responseText)
                 {
                     Y.one('#reset_session').simulate('click');
+                    /* console.log("different"); */
                 }
             },
         };
@@ -436,6 +587,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
 </ul>
 </section> -->
 <section id="filelist2">
+<div id="msgbox"></div>
 <table cellspacing="0">
     <thead><th colspan="2"class="path"><span class="pathstring">{{ path }}</span></th><th><span class="pathmark">[Add Mark]</span></th></thead>
     <tr>
@@ -447,13 +599,13 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
     <tbody id="fm">
         {% if resultdirlist or filelist %}
             {% for item in resultdirlist %}
-            <tr  class="folder{{ forloop.counter }}">
-            <td colspan="2" rel="{{ path }}{{ item }}"><span><a href="?path={{ currentpath }}{{ item }}">{{ item }}</a></span></td><td><span class="controls"><a href="#" id="removefolder{{ forloop.counter }}">[X]</a></span></td>
+            <tr class="folder{{ forloop.counter }}">
+            <td colspan="2" rel="{{ path }}{{ item }}"><span><a href="?path={{ currentpath }}{{ item }}">{{ item }}</a></span></td><td><span class="controls"><a href="#" class="cpfolder{{ forloop.counter }}">[Copy]</a><a href="#" class="mvfolder{{ forloop.counter }}">[Move]</a><a href="#" class="removefolder{{ forloop.counter }}">[X]</a></span></td>
             </tr>
             {% endfor %}
             {% for item, mime in filemime %}
             <tr class="item{{ forloop.counter }}">
-            <td rel="{{ path }}{{ item }}"><span>{{ item }}</span></td><td>{{ mime }}</td><td><span class="controls"><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></span></td>
+            <td rel="{{ path }}{{ item }}"><span>{{ item }}</span></td><td>{{ mime }}</td><td><span class="controls"><a href="#" class="cpfile{{ forloop.counter }}">[Copy]</a><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></span></td>
             </tr>
             {% endfor %}
         {% else %}

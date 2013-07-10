@@ -26,6 +26,9 @@ It's easy:
  
 Finish!
 
+**<a name="1">[1]</a>** Exactly called *ajaxfilemanager* and in this directory you find *views.py*, *models.py*, and *urls.py*
+
+
 ## Usage
 
 Serve to 'http://your.server.com/ajaxfilemanager'. You will be 
@@ -45,7 +48,18 @@ filemanager.
 
 
 * "Access denied" for direct usage of /upload.
-* Watch the media directory for changes and add them immediately to page.
 * Authentication for access to ajaxfm   
+* Maybe some OOP 
    
-**<a name="1">[1]</a>** Exactly called *ajaxfilemanager* and in this directory you find *views.py*, *models.py*, and *urls.py*
+   
+#API Documentation
+Ajaxfilemanager provides an API that you can access easily about the URL.
+First here are all function:
+
+* New Folder: actions/newfolder/?path=pathWhereFolderPlacedIn&folder=folderName
+* Remove File: actions/rmfile/?path=pathWhereFilePlacedIn&filename=fileName
+* Remove Folder: actions/rmfolder/?path=pathWhereFolderPlacedIn&folder=folderName
+* Move File: actions/mvfile/?path=pathWhereFilePlacedIn&filename=fileName
+* Move Folder: actions/mvfolder/?path=pathWhereFolderPlacedIn&filename=folderName
+* Copy File: actions/cpfile/?path=pathWhereFilePlacedIn&filename=fileName
+* Copy Folder: actions/cpfolder/?path=pathWhereFolderPlacedIn&filename=folderName

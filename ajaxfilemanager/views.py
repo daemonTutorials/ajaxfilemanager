@@ -11,6 +11,9 @@ import os
 import subprocess
 import shutil
 
+
+# Backend scripting
+
 def findpath(path):
     above = path[::-1]
     above_int = above.find("/")
@@ -35,6 +38,101 @@ def copytree(src, dst, symlinks=False, ignore=None):
             shutil.copytree(s, d, symlinks, ignore)
         else:
             shutil.copy2(s, d)
+            
+def rm(request,datatype):
+    try:
+        path = request.GET['path']
+        if datatype == "file":
+            filename = request.GET["filename"]
+        elif datatype == "folder":
+            folder = request.GET["folder"]
+            
+    except (KeyError):
+        return HttpResponse("No path exist")
+    else:
+        currentpath = path
+        path = os.path.join(ajaxfilemanager.settings.file_directory,path)
+        print(path+" "+currentpath+" "+ajaxfilemanager.settings.file_directory)
+        if os.access(path, os.W_OK):
+            os.chdir(path)
+            if datatype == "file":
+                os.remove(filename)
+            elif datatype == "folder":
+                os.rmtree(folder)
+                
+            return HttpResponse(datatype+" successfully deleted")
+                
+def mv(request, datatype):
+    class InvalidPath(Exception):
+        def __init__(self, value):
+            self.value = value
+        def __str__(self):
+            return repr(self.value)
+
+
+    try:
+        path = request.GET['path']
+        if datatype == "file":
+            filepath = request.GET["filepath"]
+            filename = request.GET["filename"]
+        elif datatype == "folder":
+            folderpath = request.GET["filepath"]
+            foldername = request.GET["filename"]
+        
+    except KeyError:
+        return HttpResponse("No path exist")
+        
+    else:
+        currentpath = path
+        path = os.path.join(ajaxfilemanager.settings.file_directory,path)
+        if os.access(path, os.W_OK):
+            if datatype == "file":
+                src = os.path.join(path,filename)
+                dst = os.path.join(ajaxfilemanager.settings.file_directory,filepath)
+            elif datatype == "folder":
+                src = os.path.join(path,foldername)
+                dst = os.path.join(ajaxfilemanager.settings.file_directory,folderpath,foldername)
+                
+            shutil.move(src, dst)
+            return HttpResponse(datatype+" successfully moved")
+            
+def cp(request, datatype):
+    class InvalidPath(Exception):
+        def __init__(self, value):
+            self.value = value
+        def __str__(self):
+            return repr(self.value)
+
+
+    try:
+        path = request.GET['path']
+        if datatype == "file":
+            filepath = request.GET["filepath"]
+            filename = request.GET["filename"]
+        elif datatype == "folder":
+            folderpath = request.GET["filepath"]
+            foldername = request.GET["filename"]
+        
+    except KeyError:
+        return HttpResponse("No path exist")
+        
+    else:
+        currentpath = path
+        path = os.path.join(ajaxfilemanager.settings.file_directory,path)
+        if os.access(path, os.W_OK):
+            if datatype == "file":
+                src = os.path.join(path,filename)
+                dst = os.path.join(ajaxfilemanager.settings.file_directory,filepath)
+                shutil.copy(src,dst)
+                
+            elif datatype == "folder":
+                src = os.path.join(path,foldername)
+                dst = os.path.join(ajaxfilemanager.settings.file_directory,folderpath,foldername)
+                copytree(src,dst)
+
+            return HttpResponse(datatype+" successfully moved")
+
+# Webaccess
 
 def upload(request):
     return render_to_response('ajaxfilemanager/upload.html', { 'ajaxfilemanager': ajaxfilemanager  }, context_instance=RequestContext(request))
@@ -120,136 +218,31 @@ def newfolder(request):
             os.chdir(path)
             os.mkdir(folder)
             return HttpResponse("Folder successfully created")
-
+            
 
 def rmfile(request):
-    try:
-        path = request.GET['path']
-        filename = request.GET["filename"]
-    except (KeyError):
-        return HttpResponse("No path exist")
-    else:
-        currentpath = path
-        path = os.path.join(ajaxfilemanager.settings.file_directory,path)
-        print(path+" "+currentpath+" "+ajaxfilemanager.settings.file_directory)
-        if os.access(path, os.W_OK):
-            os.chdir(path)
-            os.remove(filename)
-            return HttpResponse("File successfully deleted")       
+    response = rm(request,"file")
+    return response
 
 def rmfolder(request):
-    try:
-        path = request.GET['path']
-        folder = request.GET["folder"]
-    except (KeyError):
-        return HttpResponse("No path exist")
-    else:
-        currentpath = path
-        path = os.path.join(ajaxfilemanager.settings.file_directory,path)
-        if os.access(path, os.W_OK):
-            os.chdir(path)
-            shutil.rmtree(folder)
-            return HttpResponse("Folder successfully deleted")
+    response = rm(request,"folder")
+    return response
 
 def mvfile(request):
-    class InvalidPath(Exception):
-        def __init__(self, value):
-            self.value = value
-        def __str__(self):
-            return repr(self.value)
-
-
-    try:
-        path = request.GET['path']
-        filepath = request.GET["filepath"]
-        filename = request.GET["filename"]
-        
-    except KeyError:
-        return HttpResponse("No path exist")
-        
-    else:
-        currentpath = path
-        path = os.path.join(ajaxfilemanager.settings.file_directory,path)
-        if os.access(path, os.W_OK):
-            src = os.path.join(path,filename)
-            dst = os.path.join(ajaxfilemanager.settings.file_directory,filepath)
-            shutil.move(src, dst)
-            return HttpResponse("File successfully moved")
+    response = mv(request,"file")
+    return response
             
 def mvfolder(request):
-    class InvalidPath(Exception):
-        def __init__(self, value):
-            self.value = value
-        def __str__(self):
-            return repr(self.value)
-
-
-    try:
-        path = request.GET['path']
-        filepath = request.GET["folderpath"]
-        filename = request.GET["foldername"]
-        
-    except KeyError:
-        return HttpResponse("No path exist")
-        
-    else:
-        currentpath = path
-        path = os.path.join(ajaxfilemanager.settings.file_directory,path)
-        if os.access(path, os.W_OK):
-            src = os.path.join(path,filename)
-            dst = os.path.join(ajaxfilemanager.settings.file_directory,filepath)
-            shutil.move(src, dst)
-            return HttpResponse("Folder successfully moved")
+    response = mv(request,"folder")
+    return response
             
 def cpfile(request):
-    class InvalidPath(Exception):
-        def __init__(self, value):
-            self.value = value
-        def __str__(self):
-            return repr(self.value)
-
-
-    try:
-        path = request.GET['path']
-        filepath = request.GET["filepath"]
-        filename = request.GET["filename"]
-        
-    except KeyError:
-        return HttpResponse("No path exist")
-        
-    else:
-        currentpath = path
-        path = os.path.join(ajaxfilemanager.settings.file_directory,path)
-        if os.access(path, os.W_OK):
-            src = os.path.join(path,filename)
-            dst = os.path.join(ajaxfilemanager.settings.file_directory,filepath)
-            shutil.copy(src, dst)
-            return HttpResponse("File successfully copied")
+    response = cp(request, "file")
+    return response
             
 def cpfolder(request):
-    class InvalidPath(Exception):
-        def __init__(self, value):
-            self.value = value
-        def __str__(self):
-            return repr(self.value)
-
-
-    try:
-        path = request.GET['path']
-        filepath = request.GET["folderpath"]
-        filename = request.GET["foldername"]
-        
-    except KeyError:
-        return HttpResponse("No path exist")
-        
-    else:
-        currentpath = path
-        path = os.path.join(ajaxfilemanager.settings.file_directory,path)
-        if os.access(path, os.W_OK):
-            src = os.path.join(path,filename)
-            dst = os.path.join(ajaxfilemanager.settings.file_directory,filepath,filename)
-            copytree(src, dst)
-            return HttpResponse("Folder successfully copied")
+    response = cp(request, "folder")
+    return response
             
 
 @csrf_protect

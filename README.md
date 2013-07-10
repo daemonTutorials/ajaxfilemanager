@@ -59,7 +59,7 @@ First here are all function:
 * New Folder: actions/newfolder/?path=pathWhereFolderPlacedIn&folder=folderName
 * Remove File: actions/rmfile/?path=pathWhereFilePlacedIn&filename=fileName
 * Remove Folder: actions/rmfolder/?path=pathWhereFolderPlacedIn&folder=folderName
-* Move File: actions/mvfile/?path=pathWhereFilePlacedIn&filename=fileName
-* Move Folder: actions/mvfolder/?path=pathWhereFolderPlacedIn&filename=folderName
-* Copy File: actions/cpfile/?path=pathWhereFilePlacedIn&filename=fileName
-* Copy Folder: actions/cpfolder/?path=pathWhereFolderPlacedIn&filename=folderName
+* Move File: actions/mvfile/?path=pathWhereFilePlacedIn&filepath=pathWhereFileMoved&filename=fileName
+* Move Folder: actions/mvfolder/?path=pathWhereFolderPlacedIn&filepath=pathWhereFolderMoved&filename=folderName
+* Copy File: actions/cpfile/?path=pathWhereFilePlacedIn&filepath=pathWhereFileCopied&filename=fileName
+* Copy Folder: actions/cpfolder/?path=pathWhereFolderPlacedIn&filepath=pathWhereFolderCopied&filename=folderName

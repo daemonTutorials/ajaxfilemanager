@@ -9,7 +9,6 @@
 <td>Built with</td><td>Django 1.5 - Python 2.7.3</td>
 </tr>
 </table>
-This ajaxfilemanager based on *python-django*!
 
 Released with **Django 1.5**
 
@@ -48,8 +47,7 @@ filemanager.
 
 
 * "Access denied" for direct usage of /upload.
-* Authentication for access to ajaxfm   
-* Maybe some OOP 
+* Authentication for access to ajaxfm
    
    
 #API Documentation
@@ -60,6 +58,8 @@ First here are all function:
 * Remove File: actions/rmfile/?path=pathWhereFilePlacedIn&filename=fileName
 * Remove Folder: actions/rmfolder/?path=pathWhereFolderPlacedIn&folder=folderName
 * Move File: actions/mvfile/?path=pathWhereFilePlacedIn&filepath=pathWhereFileMoved&filename=fileName
-* Move Folder: actions/mvfolder/?path=pathWhereFolderPlacedIn&filepath=pathWhereFolderMoved&filename=folderName
+* Move Folder: actions/mvfolder/?path=pathWhereFolderPlacedIn&folderpath=pathWhereFolderMoved&foldername=folderName
 * Copy File: actions/cpfile/?path=pathWhereFilePlacedIn&filepath=pathWhereFileCopied&filename=fileName
-* Copy Folder: actions/cpfolder/?path=pathWhereFolderPlacedIn&filepath=pathWhereFolderCopied&filename=folderName
+* Copy Folder: actions/cpfolder/?path=pathWhereFolderPlacedIn&folderpath=pathWhereFolderCopied&foldername=folderName
+* Rename File: actions/renamefile/?path=pathWhereFilePlacedIn&filenewname=newFileName&filename=fileName
+* Rename Folder: actions/renamefolder/?path=pathWhereFolderPlacedIn&foldernewname=newFolderName&foldername=folderName

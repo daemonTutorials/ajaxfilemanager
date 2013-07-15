@@ -172,7 +172,34 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
                 }
             });
         });        
-
+        /* Rename File */
+        Y.one('.renamefile{{ forloop.counter }}').on('click', function() {
+            Y.one('#modal_path_head').set("innerHTML","Rename file {{ item }}");
+            Y.one('#modal_path_details').set("innerHTML", "You rename the file {{ item }} to the name you entered below. Leave it blank for root-directory.");
+            Y.one('.modal_path_input').setAttribute("placeholder", "newname.html");
+            modal_path.show();
+            Y.one('#modal_bg').setStyle('display', 'block');
+            Y.one('.modal_path_yes').on('click', function() {
+            
+                /*if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {
+                    console.log("no");
+                }
+                else { console.log("yes"); } */
+                if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {                
+                    renameFile("{{ item }}","{{ forloop.counter }}");
+                    modal_path.hide();
+                    Y.one('#modal_bg').setStyle('display', 'none');
+                }
+                else {
+                    Y.one('.modal_path_input').set('value','Not allowed');
+                    Y.one('.modal_path_input').setStyle('color','red');
+                    window.setTimeout(function() {
+                    Y.one('.modal_path_input').set('value','');
+                    Y.one('.modal_path_input').setStyle('color','black');
+                    }, 1000);
+                }
+            });
+        });   
         {% endfor %}
         {% for folder in resultdirlist %}
         Y.one('.removefolder{{ forloop.counter }}').on('click', function() {
@@ -216,7 +243,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
             /* Move Folder */
         Y.one('.mvfolder{{ forloop.counter }}').on('click', function() {
             Y.one('#modal_path_head').set("innerHTML","Move folder {{ item }}");
-            Y.one('#modal_path_details').set("innerHTML", "You move the folder {{ item }} to the path you entered below. Leave it blank for root-directory.");
+            Y.one('#modal_path_details').set("innerHTML", "You move the folder {{ item }} to the path you entered below.");
             modal_path.show();
             Y.one('#modal_bg').setStyle('display', 'block');
             Y.one('.modal_path_yes').on('click', function() {
@@ -240,7 +267,34 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
                 }
             });
         });    
-
+        /* Rename Folder */
+        Y.one('.renamefolder{{ forloop.counter }}').on('click', function() {
+            Y.one('#modal_path_head').set("innerHTML","Rename folder {{ item }}");
+            Y.one('#modal_path_details').set("innerHTML", "You rename the folder {{ item }} to the name you entered below.");
+            Y.one('.modal_path_input').setAttribute("placeholder", "Newname");
+            modal_path.show();
+            Y.one('#modal_bg').setStyle('display', 'block');
+            Y.one('.modal_path_yes').on('click', function() {
+            
+                /*if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {
+                    console.log("no");
+                }
+                else { console.log("yes"); } */
+                if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {                
+                    renameFolder("{{ folder }}","{{ forloop.counter }}");
+                    modal_path.hide();
+                    Y.one('#modal_bg').setStyle('display', 'none');
+                }
+                else {
+                    Y.one('.modal_path_input').set('value','Not allowed');
+                    Y.one('.modal_path_input').setStyle('color','red');
+                    window.setTimeout(function() {
+                    Y.one('.modal_path_input').set('value','');
+                    Y.one('.modal_path_input').setStyle('color','black');
+                    }, 1000);
+                }
+            });
+        });   
         {% endfor %}
 
 
@@ -358,7 +412,14 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
         
         /* AJAX */
         
-
+        function displayMessage(msg) {
+            Y.one('#msgbox').setStyle('color', 'white');
+            Y.one('#msgbox').setStyle('background-color', 'green');
+            Y.one('#msgbox').setStyle('font-weight', 'bold');
+            Y.one('#msgbox').set('innerHTML', msg);
+            window.setTimeout(function(){
+            Y.one('#msgbox').setStyle('display','none'); }, 1000);
+        }
 
         var NewFolderHandler = {
 
@@ -375,43 +436,47 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
         };
         var cpFolderHandler = {
             success: function (transactionid, response, arguments) {
-                        Y.one('#msgbox').setStyle('color', 'white');
-                        Y.one('#msgbox').setStyle('background-color', 'green');
-                        Y.one('#msgbox').setStyle('font-weight', 'bold');
-                        Y.one('#msgbox').set('innerHTML', 'Copied!');
-                        window.setTimeout(function(){
-                        Y.one('#msgbox').setStyle('display','none'); }, 1000);
+                        displayMessage("Copied!");
+                    },
+        };
+        var renameFolderHandler = {
+            success: function (transactionid, response, arguments) {
+                        displayMessage("Renamed!");
                     },
         };
         var mvFolderHandler = {
             success: function (transactionid, response, arguments) {
                         Y.one('tr.item'+arguments.id).setStyle('display', 'none');
+                        displayMessage("Moved!");
                     },
         };
         var deleteFolderHandler = {
              success: function (transactionid, response, arguments) {
                         Y.one('tr.folder'+arguments.id).setStyle('display', 'none');
+                        displayMessage("Deleted!");
                     },
         };
         
         var deleteFileHandler = {
              success: function (transactionid, response, arguments) {
                         Y.one('tr.item'+arguments.id).setStyle('display', 'none');
+                        displayMessage("Deleted!");
                     },
         };
         var cpFileHandler = {
             success: function (transactionid, response, arguments) {
-                        Y.one('#msgbox').setStyle('color', 'white');
-                        Y.one('#msgbox').setStyle('background-color', 'green');
-                        Y.one('#msgbox').setStyle('font-weight', 'bold');
-                        Y.one('#msgbox').set('innerHTML', 'Copied!');
-                        window.setTimeout(function(){
-                        Y.one('#msgbox').setStyle('display','none'); }, 1000);
+                        displayMessage("Copied!");
+                    },
+        };
+        var renameFileHandler = {
+            success: function (transactionid, response, arguments) {
+                        displayMessage("Renamed!");
                     },
         };
         var mvFileHandler = {
             success: function (transactionid, response, arguments) {
                         Y.one('tr.item'+arguments.id).setStyle('display', 'none');
+                        displayMessage("Moved!");
                     },
         };
 
@@ -475,7 +540,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
         function cpFile(item, id) {
             var cfg = {
                 method: "GET",
-                data: "path={{ currentpath }}&folderpath="+Y.one('.modal_path_input').get('value')+"&foldername="+item,
+                data: "path={{ currentpath }}&filepath="+Y.one('.modal_path_input').get('value')+"&filename="+item,
                 on: {
                         success: cpFileHandler.success,
                 },
@@ -503,7 +568,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
         function cpFolder(item, id) {
             var cfg = {
                 method: "GET",
-                data: "path={{ currentpath }}&filepath="+Y.one('.modal_path_input').get('value')+"&filename="+item,
+                data: "path={{ currentpath }}&folderpath="+Y.one('.modal_path_input').get('value')+"&foldername="+item,
                 on: {
                         success: cpFolderHandler.success,
                 },
@@ -514,7 +579,34 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
             };
             var request = Y.io('actions/cpfolder/', cfg);
         }
-        
+        function renameFolder(item, id) {
+            var cfg = {
+                method: "GET",
+                data: "path={{ currentpath }}&foldernewname="+Y.one('.modal_path_input').get('value')+"&foldername="+item,
+                on: {
+                        success: renmaeFolderHandler.success,
+                },
+                context: renameFolderHandler,
+                arguments: {
+                    "id": id,
+                },
+            };
+            var request = Y.io('actions/renamefolder/', cfg);
+        }
+        function renameFile(item, id) {
+            var cfg = {
+                method: "GET",
+                data: "path={{ currentpath }}&filenewname="+Y.one('.modal_path_input').get('value')+"&filename="+item,
+                on: {
+                        success: cpFileHandler.success,
+                },
+                context: cpFileHandler,
+                arguments: {
+                    "id": id,
+                },
+            };
+            var request = Y.io('actions/renamefile/', cfg);
+        }
         /* Watchdog */
         
         var watchdogHandler = {
@@ -600,12 +692,12 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
         {% if resultdirlist or filelist %}
             {% for item in resultdirlist %}
             <tr class="folder{{ forloop.counter }}">
-            <td colspan="2" rel="{{ path }}{{ item }}"><span><a href="?path={{ currentpath }}{{ item }}">{{ item }}</a></span></td><td><span class="controls"><a href="#" class="cpfolder{{ forloop.counter }}">[Copy]</a><a href="#" class="mvfolder{{ forloop.counter }}">[Move]</a><a href="#" class="removefolder{{ forloop.counter }}">[X]</a></span></td>
+            <td colspan="2" rel="{{ path }}{{ item }}"><span><a href="?path={{ currentpath }}{{ item }}">{{ item }}</a></span></td><td><span class="controls"><a href="#" class="renamefolder{{ forloop.counter }}">[Rename]</a><a href="#" class="cpfolder{{ forloop.counter }}">[Copy]</a><a href="#" class="mvfolder{{ forloop.counter }}">[Move]</a><a href="#" class="removefolder{{ forloop.counter }}">[X]</a></span></td>
             </tr>
             {% endfor %}
             {% for item, mime in filemime %}
             <tr class="item{{ forloop.counter }}">
-            <td rel="{{ path }}{{ item }}"><span>{{ item }}</span></td><td>{{ mime }}</td><td><span class="controls"><a href="#" class="cpfile{{ forloop.counter }}">[Copy]</a><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></span></td>
+            <td rel="{{ path }}{{ item }}"><span>{{ item }}</span></td><td>{{ mime }}</td><td><span class="controls"><a href="#" class="renamefile{{ forloop.counter }}">[Rename]</a><a href="#" class="cpfile{{ forloop.counter }}">[Copy]</a><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></span></td>
             </tr>
             {% endfor %}
         {% else %}

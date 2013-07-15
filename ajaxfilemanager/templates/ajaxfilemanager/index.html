@@ -39,20 +39,27 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
 		xy: [100,100],
 	});
 	upload.render();
-        
-        var yesno = new Y.Overlay({
-            srcNode: "#yesno",
+
+    var editor = new Y.Overlay({
+            srcNode: "#editor",
             visible:false,
-            xy: [400,300],
-        });    
-        yesno.render();
-        
-        var modal_path = new Y.Overlay({
-            srcNode: "#modal_path",
-            visible:false,
-            xy: [400,300],
-        });    
-        modal_path.render();
+            xy:[100,3],
+    });
+    editor.render();
+    
+    var yesno = new Y.Overlay({
+        srcNode: "#yesno",
+        visible:false,
+        xy: [400,300],
+    });    
+    yesno.render();
+    
+    var modal_path = new Y.Overlay({
+        srcNode: "#modal_path",
+        visible:false,
+        xy: [400,300],
+    });    
+    modal_path.render();
         
         
     Y.on('domready', function() {
@@ -199,7 +206,15 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
                     }, 1000);
                 }
             });
-        });   
+        });  
+        /* Edit File */
+        Y.one('.edit{{ forloop.counter }}').on('click', function() {
+            Y.one('#editoriframe').setAttribute('src', 'editor/?path={{ currentpath }}&filename={{ item }}');
+            Y.one('#editor .filename').set('innerHTML', "{{ item }}");
+            Y.one('#modal_bg').setStyle('display', 'block');
+            Y.one('#editor').setStyle('display','block');
+            editor.show();
+        });  
         {% endfor %}
         {% for folder in resultdirlist %}
         Y.one('.removefolder{{ forloop.counter }}').on('click', function() {
@@ -390,7 +405,10 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
             newfolder.hide();
             Y.one('#upload').setStyle('display', 'none');
             upload.hide();
+            Y.one('#editor').setStyle('display', 'none');
+            editor.hide();
             Y.one('#modal_path').setStyle('display', 'none');
+            Y.one('#modal_bg').setStyle('display', 'none');
             Y.one('#yesno').setStyle('display', 'none');
             
         });
@@ -697,7 +715,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
             {% endfor %}
             {% for item, mime in filemime %}
             <tr class="item{{ forloop.counter }}">
-            <td rel="{{ path }}{{ item }}"><span>{{ item }}</span></td><td>{{ mime }}</td><td><span class="controls"><a href="#" class="renamefile{{ forloop.counter }}">[Rename]</a><a href="#" class="cpfile{{ forloop.counter }}">[Copy]</a><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></span></td>
+            <td rel="{{ path }}{{ item }}"><a href="#" class="edit{{ forloop.counter }}"><span>{{ item }}</span></a></td><td>{{ mime }}</td><td><span class="controls"><a href="#" class="renamefile{{ forloop.counter }}">[Rename]</a><a href="#" class="cpfile{{ forloop.counter }}">[Copy]</a><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></span></td>
             </tr>
             {% endfor %}
         {% else %}
@@ -736,6 +754,20 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
 
 <div class="yui3-widget-bd">
 <iframe src="upload/" id="uploadiframe" seamless></iframe>
+</div>
+</div>
+</div>
+
+<div id="editor" class="overlay widgetgreen yui3-overlay">
+
+<div class="yui3-overlay-close"></div>
+
+<div class="yui3-overlay-content">
+
+<div class="yui3-widget-hd"><h3>Edit <span class="filename"></span></h3></div>
+
+<div class="yui3-widget-bd">
+<iframe src="editor/" id="editoriframe" seamless></iframe>
 </div>
 </div>
 </div>

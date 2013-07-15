@@ -137,3 +137,16 @@ def rename(request,datatype):
                 os.rename(src,dst)
 
             return HttpResponse(datatype+" successfully renamed")
+            
+            
+def editfile(request):
+    try: 
+        path = request.POST['path']
+        content = request.POST['content']
+    except (KeyError):
+        return HttpResponse("No path exist")
+    else:
+        with open(path,'w') as f:
+            f.write(content)
+            
+        return HttpResponse("Successfull edited!")

@@ -1,0 +1,55 @@
+<html>
+<head>
+<title>Edit :: {{ filename }}</title>
+<style type="text/css">
+#editor {
+    display: block;
+}
+h1 {
+    text-align: center;
+}
+</style>
+<script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js" charset="utf-8"></script>
+<script type="text/javascript">
+/*
+ * Syntax-Highlighting: http://codemirror.net/
+ *
+ *
+ */
+
+YUI().use('node', 'io', 'cookie', function(Y) {
+    
+    Y.io.header("X-CSRFToken", Y.Cookie.get("csrftoken"));
+    Y.one('#edit_text').on('click', function() {
+        var editFileHandler = {
+            success: function (transactionid, response, arguments) {
+                Y.one('.msg').set('innerHTML', response.responseText);
+                window.setTimeout(function() {
+                    Y.one('.msg').set('innerHTML', '');
+                }, 2000);
+            },
+        };
+        
+        var cfg = {
+            method: "POST",
+            data: "path={{ path }}&content="+Y.one('#editor').get('value'),
+            on: {
+                    success: editFileHandler.success,
+            },
+            context: editFileHandler,
+        };
+        var request = Y.io('../actions/editfile/', cfg);
+    });
+});
+</script>
+</head>
+<body>
+<h1>Edit :: {{ filename }}</h1>
+<i>Absolute PATH: {{ path }}</i>
+<textarea id="editor" cols="105" rows="30">
+{{ textcontent }}
+</textarea>
+<span class="msg"></span>
+<button id="edit_text">Submit Changes</button>
+</body>
+</html>

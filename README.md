@@ -63,3 +63,4 @@ First here are all function:
 * Copy Folder: actions/cpfolder/?path=pathWhereFolderPlacedIn&folderpath=pathWhereFolderCopied&foldername=folderName
 * Rename File: actions/renamefile/?path=pathWhereFilePlacedIn&filenewname=newFileName&filename=fileName
 * Rename Folder: actions/renamefolder/?path=pathWhereFolderPlacedIn&foldernewname=newFolderName&foldername=folderName
+* Edit file: actions/editfile/ | POSTVars: path=pathToFile&content=FileContentToWrite

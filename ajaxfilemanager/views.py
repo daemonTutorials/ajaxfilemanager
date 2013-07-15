@@ -102,6 +102,24 @@ def index(request):
         elif ajax == "true":
             return render_to_response('ajaxfilemanager/directory_listing.html', { 'ajaxfilemanager': ajaxfilemanager, 'resultdirlist': resultdirlist, 'filelist': filelist, 'currentpath': currentpath, 'path': path, 'above': above, 'filenames': filenames, 'filemime': filemime }, context_instance=RequestContext(request)) 
 
+def editor(request):
+    try:
+        path = request.GET['path']
+        filename = request.GET['filename']
+    except (KeyError):
+        return HttpResponse("No path exist")
+    else:
+        path = os.path.join(ajaxfilemanager.settings.file_directory, path, filename)
+        textcontent = subprocess.Popen(["/bin/cat", path], shell=False, stdout=subprocess.PIPE).communicate()[0]
+        
+        return render_to_response('ajaxfilemanager/editor.html', {'filename':filename,'textcontent':textcontent,'path':path})
+
+@csrf_protect
+def editfile(request):
+    response = ajaxFM.editfile(request)
+    return response
+
+
 def newfolder(request):
     try:
         path = request.GET['path']
@@ -148,6 +166,7 @@ def renamefile(request):
 def renamefolder(request):
     response = ajaxFM.rename(request, "folder")
     return response
+
             
 
 @csrf_protect

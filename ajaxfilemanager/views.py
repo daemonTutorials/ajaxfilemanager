@@ -110,7 +110,9 @@ def editor(request):
         return HttpResponse("No path exist")
     else:
         path = os.path.join(ajaxfilemanager.settings.file_directory, path, filename)
-        textcontent = subprocess.Popen(["/bin/cat", path], shell=False, stdout=subprocess.PIPE).communicate()[0]
+        #textcontent = subprocess.Popen(["/bin/cat", path], shell=False, stdout=subprocess.PIPE).communicate()[0]
+        with open(path, 'r') as f:
+            textcontent = f.read()
         
         return render_to_response('ajaxfilemanager/editor.html', {'filename':filename,'textcontent':textcontent,'path':path})
 

@@ -1,5 +1,5 @@
 v0.2
--->Security Fixes
+-->Minor Security Fixes
 -->Upload Tool 
 -->No dependency on project related files
 -->Design change
@@ -7,6 +7,7 @@ v0.2
 -->Basic file operations
 -->Simple Editor
 -->Viewer for Images
+-->Rebuild some code in the OOP-way to reduce maintenance.
 
 v0.1
 -->This is the first release!

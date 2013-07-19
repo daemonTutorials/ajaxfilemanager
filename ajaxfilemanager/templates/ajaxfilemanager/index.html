@@ -7,6 +7,7 @@
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/widget.css" />
 <script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js" charset="utf-8"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/geturlparam.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/ajaxFM.js"></script>
 <script type="text/javascript">
 function removeBkm(id)
 {
@@ -68,6 +69,12 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
     });    
     modal_path.render();
         
+    ajaxfmcfg = {
+        modalclass: "#modal_bg",
+        yesno_prefix: "yesno",
+        modal_path_prefix: "modal_path",
+    };
+    var ajaxfm = new ajaxFM(Y,ajaxfmcfg);
         
     function showImage(name,src) {
         Y.one('#imageview .filename').set('innerHTML', name);
@@ -135,10 +142,12 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
  {% for item in filenames %}
 		/* Remove file */
         Y.one('.removefile{{ forloop.counter }}').on('click', function() {
-            Y.one('#yesno_head').set("innerHTML","Are you sure?");
-            Y.one('#yesno_details').set("innerHTML", "You want to be delete file {{ item }}.");
+            var cfg = {
+                msg: "You want to be delete file {{ item }}.",
+                title: "Are you sure?",
+            };
+            ajaxfm.yesno(cfg);
             yesno.show();
-            Y.one('#modal_bg').setStyle('display', 'block');
             Y.one('.yesno_yes').on('click', function() {                
                 deleteFile("{{ item }}", "{{ forloop.counter }}");
                 yesno.hide();
@@ -147,10 +156,12 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
         });
         /* Copy file */
           Y.one('.cpfile{{ forloop.counter }}').on('click', function() {
-            Y.one('#modal_path_head').set("innerHTML","Copy file {{ item }}");
-            Y.one('#modal_path_details').set("innerHTML", "You copy the file {{ item }} to the path you entered below. Leave it blank for root-directory.");
+            var cfg = {
+                msg: "You copy the file {{ item }} to the path you entered below. Leave it blank for root-directory.",
+                title: "Copy {{ item }}",
+            };
+            ajaxfm.modalPath(cfg);
             modal_path.show();
-            Y.one('#modal_bg').setStyle('display', 'block');
             Y.one('.modal_path_yes').on('click', function() {
             
                 /*if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {
@@ -174,10 +185,12 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
         });
             /* Move File */
         Y.one('.mvfile{{ forloop.counter }}').on('click', function() {
-            Y.one('#modal_path_head').set("innerHTML","Move file {{ item }}");
-            Y.one('#modal_path_details').set("innerHTML", "You move the file {{ item }} to the path you entered below. Leave it blank for root-directory.");
+            var cfg = {
+                msg: "You move the file {{ item }} to the path you entered below. Leave it blank for root-directory.",
+                title: "Move file {{ item }}",
+            };
+            ajaxfm.modalPath(cfg);
             modal_path.show();
-            Y.one('#modal_bg').setStyle('display', 'block');
             Y.one('.modal_path_yes').on('click', function() {
             
                 /*if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {
@@ -201,11 +214,13 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
         });        
         /* Rename File */
         Y.one('.renamefile{{ forloop.counter }}').on('click', function() {
-            Y.one('#modal_path_head').set("innerHTML","Rename file {{ item }}");
-            Y.one('#modal_path_details').set("innerHTML", "You rename the file {{ item }} to the name you entered below. Leave it blank for root-directory.");
+            var cfg = {
+                title: "Rename file {{ item }}",
+                msg: "You rename the file {{ item }} to the name you entered below. Leave it blank for root-directory.",
+            };
+            ajaxfm.modalPath(cfg);
             Y.one('.modal_path_input').setAttribute("placeholder", "newname.html");
             modal_path.show();
-            Y.one('#modal_bg').setStyle('display', 'block');
             Y.one('.modal_path_yes').on('click', function() {
             
                 /*if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {
@@ -256,10 +271,12 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
         {% endfor %}
         {% for folder in resultdirlist %}
         Y.one('.removefolder{{ forloop.counter }}').on('click', function() {
-            Y.one('#yesno_head').set("innerHTML","Are you sure?");
-            Y.one('#yesno_details').set("innerHTML", "You want to delete the folder {{ folder }}");
+            var cfg = {
+                title: "Are you sure?",
+                msg: "You want to delete the folder {{ folder }}",
+            };
+            ajaxfm.yesno(cfg);
             yesno.show();
-            Y.one('#modal_bg').setStyle('display', 'block');
             Y.one('.yesno_yes').on('click', function() {                
                 deleteFolder("{{ folder }}", "{{ forloop.counter }}");
                 yesno.hide();
@@ -268,10 +285,12 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
         });         
         /* Copy folder */
           Y.one('.cpfolder{{ forloop.counter }}').on('click', function() {
-            Y.one('#modal_path_head').set("innerHTML","Copy folder {{ item }}");
-            Y.one('#modal_path_details').set("innerHTML", "You copy the folder {{ item }} to the path you entered below. Leave it blank for root-directory.");
+            var cfg = {
+                msg: "You copy the folder {{ folder }} to the path you entered below. Leave it blank for root-directory.",
+                title: "Copy {{ folder }}",
+            };
+            ajaxfm.modalPath(cfg);
             modal_path.show();
-            Y.one('#modal_bg').setStyle('display', 'block');
             Y.one('.modal_path_yes').on('click', function() {
             
                 /*if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {
@@ -295,10 +314,12 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
         });
             /* Move Folder */
         Y.one('.mvfolder{{ forloop.counter }}').on('click', function() {
-            Y.one('#modal_path_head').set("innerHTML","Move folder {{ item }}");
-            Y.one('#modal_path_details').set("innerHTML", "You move the folder {{ item }} to the path you entered below.");
+            var cfg = {
+                msg: "You move the folder {{ folder }} to the path you entered below. Leave it blank for root-directory.",
+                title: "Move {{ folder }}",
+            };
+            ajaxfm.modalPath(cfg);
             modal_path.show();
-            Y.one('#modal_bg').setStyle('display', 'block');
             Y.one('.modal_path_yes').on('click', function() {
             
                 /*if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {
@@ -322,11 +343,13 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
         });    
         /* Rename Folder */
         Y.one('.renamefolder{{ forloop.counter }}').on('click', function() {
-            Y.one('#modal_path_head').set("innerHTML","Rename folder {{ item }}");
-            Y.one('#modal_path_details').set("innerHTML", "You rename the folder {{ item }} to the name you entered below.");
+            var cfg = {
+                msg: "You rename the folder {{ folder }} to the name you entered below.",
+                title: "Rename folder {{ folder }}",
+            };
+            ajaxfm.modalPath(cfg);
             Y.one('.modal_path_input').setAttribute("placeholder", "Newname");
             modal_path.show();
-            Y.one('#modal_bg').setStyle('display', 'block');
             Y.one('.modal_path_yes').on('click', function() {
             
                 /*if (Y.one('.modal_path_input').get('value').indexOf("../") == -1) {
@@ -353,40 +376,12 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
 
         /* Event Handler */
         
-        Y.one('#display_bookmarks').on('click', function() {
-            if(Y.one('#display_bookmarks').get('rel') == "off")
-            {
-                var marksAnim = new Y.Anim({
-                    node: '#marks',
-                    to: {
-                        opacity: 0,
-                    },
-                });        
-                marksAnim.run();
-                marksAnim.on('end', function() {
-                    Y.one('#marks').setStyle('display', 'none');
-                    Y.one('#display_bookmarks span').set('innerHTML', 'on');
-                    Y.one('#display_bookmarks').set('rel', 'on');
-                });
-                localStorage.setItem('bkm_switch', 'off');
-            }
-            else {
-                
-                    Y.one('#marks').setStyle('display', 'block');
-                var marksAnim = new Y.Anim({
-                    node: '#marks',
-                    to: {
-                        opacity: 1,
-                    },
-                });
-                marksAnim.run();
-                marksAnim.on('end', function() {
-                    Y.one('#display_bookmarks').set('rel', 'off');
-                    Y.one('#display_bookmarks span').set('innerHTML', 'off');
-                });
-                localStorage.setItem('bkm_switch', 'on');
-            }
+        ajaxfm.setBookmarkTrigger({
+            trigger: "#display_bookmarks",
+            node: "#marks",
         });
+        
+        
         Y.one('.pathmark').on('click', function() {
             var path = Y.one('.pathstring').get('innerHTML');
             var currentpath = path.replace("{{ ajaxfilemanager.settings.file_directory }}", "base::");
@@ -416,21 +411,10 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
 			Y.one('#upload').setStyle('display', 'block');
 			upload.show();
 		});
-        Y.one('#reset_session').on('click', function() {
-            var containerOut = new Y.Anim({
-                node: 'body',
-                to: {
-                    opacity: 0,
-                }
-            });
-            containerOut.run();
-            containerOut.on('end', function() {
-                
-                Y.one('body').set('innerHTML', '');
-                location.reload(true);
-                
-            });
+        ajaxfm.setResetTrigger({
+            trigger: '#reset_session',
         });
+        
         Y.all('.yui3-overlay-close').on('click', function(e) {
             /* Reload after Upload-Window-Close-Event */
             if (Y.one('#upload').getStyle('display') == 'block')
@@ -642,7 +626,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
                 method: "GET",
                 data: "path={{ currentpath }}&foldernewname="+Y.one('.modal_path_input').get('value')+"&foldername="+item,
                 on: {
-                        success: renmaeFolderHandler.success,
+                        success: renameFolderHandler.success,
                 },
                 context: renameFolderHandler,
                 arguments: {

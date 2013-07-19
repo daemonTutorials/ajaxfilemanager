@@ -7,7 +7,7 @@
             {% endfor %}
             {% for item, mime in filemime %}
             <tr class="item{{ forloop.counter }}">
-            <td rel="{{ path }}{{ item }}"><a href="#" class="edit{{ forloop.counter }}"><span>{{ item }}</span></a></td><td>{{ mime }}</td><td><span class="controls"><a href="#" class="renamefile{{ forloop.counter }}">[Rename]</a><a href="#" class="cpfile{{ forloop.counter }}">[Copy]</a><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></span></td>
+            <td rel="{{ path }}{{ item }}"><a href="#" class="edit{{ forloop.counter }}"><span>{{ item }}</span></a></td><td class="mime">{{ mime }}</td><td><span class="controls"><a href="#" class="renamefile{{ forloop.counter }}">[Rename]</a><a href="#" class="cpfile{{ forloop.counter }}">[Copy]</a><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></span></td>
             </tr>
             {% endfor %}
         {% else %}

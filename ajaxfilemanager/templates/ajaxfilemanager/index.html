@@ -41,11 +41,18 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
 	upload.render();
 
     var editor = new Y.Overlay({
-            srcNode: "#editor",
-            visible:false,
-            xy:[100,3],
+        srcNode: "#editor",
+        visible:false,
+        xy:[100,3],
     });
     editor.render();
+    
+    var imageviewer = new Y.Overlay({
+        srcNode: "#imageview",
+        visible: false,
+        xy:[100,3],
+    });
+    imageviewer.render();
     
     var yesno = new Y.Overlay({
         srcNode: "#yesno",
@@ -61,6 +68,19 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
     });    
     modal_path.render();
         
+        
+    function showImage(name,src) {
+        Y.one('#imageview .filename').set('innerHTML', name);
+        Y.one('#imageview .yui3-widget-bd').set('innerHTML', '<img src="'+src+'" name="'+name+'"/>');
+        
+        Y.one('#modal_bg').setStyle('display', 'block');
+        Y.one('#imageview').setStyle('display', 'block');
+        imageviewer.show();
+        window.setTimeout(function() {
+            Y.one('#imageview').setStyle('width', document.images[name].width);
+            Y.one('#imageview').setStyle('height', document.images[name].height);
+        }, 200);
+    }
         
     Y.on('domready', function() {
 
@@ -209,11 +229,29 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
         });  
         /* Edit File */
         Y.one('.edit{{ forloop.counter }}').on('click', function() {
-            Y.one('#editoriframe').setAttribute('src', 'editor/?path={{ currentpath }}&filename={{ item }}');
-            Y.one('#editor .filename').set('innerHTML', "{{ item }}");
-            Y.one('#modal_bg').setStyle('display', 'block');
-            Y.one('#editor').setStyle('display','block');
-            editor.show();
+            // TODO: per Text-Mime Vorentscheidung treffen!!
+            var mimetype = Y.one('.item{{ forloop.counter }} .mime').get('innerHTML');
+            if (mimetype.indexOf("text") != -1) {
+                Y.one('#editoriframe').setAttribute('src', 'editor/?path={{ currentpath }}&filename={{ item }}');
+                Y.one('#editor .filename').set('innerHTML', "{{ item }}");
+                Y.one('#modal_bg').setStyle('display', 'block');
+                Y.one('#editor').setStyle('display','block');
+                editor.show();
+            } else {
+                var imageName = "{{ item }}";
+                var imageSrc = "ajaxfmmedia/{{ currentpath }}{{ item }}";
+                switch (mimetype) {
+                    case " image/png":
+                        showImage(imageName, imageSrc);
+                        break;
+                    case " image/gif":
+                        showImage(imageName, imageSrc);
+                        break;
+                    case " image/jpeg":
+                        showImage(imageName, imageSrc);
+                        break;
+                }
+            }
         });  
         {% endfor %}
         {% for folder in resultdirlist %}
@@ -407,6 +445,8 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
             upload.hide();
             Y.one('#editor').setStyle('display', 'none');
             editor.hide();
+            Y.one('#imageview').setStyle('display', 'none');
+            imageviewer.hide();
             Y.one('#modal_path').setStyle('display', 'none');
             Y.one('#modal_bg').setStyle('display', 'none');
             Y.one('#yesno').setStyle('display', 'none');
@@ -715,7 +755,7 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
             {% endfor %}
             {% for item, mime in filemime %}
             <tr class="item{{ forloop.counter }}">
-            <td rel="{{ path }}{{ item }}"><a href="#" class="edit{{ forloop.counter }}"><span>{{ item }}</span></a></td><td>{{ mime }}</td><td><span class="controls"><a href="#" class="renamefile{{ forloop.counter }}">[Rename]</a><a href="#" class="cpfile{{ forloop.counter }}">[Copy]</a><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></span></td>
+            <td rel="{{ path }}{{ item }}"><a href="#" class="edit{{ forloop.counter }}"><span>{{ item }}</span></a></td><td class="mime">{{ mime }}</td><td><span class="controls"><a href="#" class="renamefile{{ forloop.counter }}">[Rename]</a><a href="#" class="cpfile{{ forloop.counter }}">[Copy]</a><a href="#" class="mvfile{{ forloop.counter }}">[Move]</a><a href="#" class="removefile{{ forloop.counter }}">[X]</a></span></td>
             </tr>
             {% endfor %}
         {% else %}
@@ -768,6 +808,19 @@ YUI().use('node', 'event-mouseenter', 'event-key', 'node-event-simulate', 'overl
 
 <div class="yui3-widget-bd">
 <iframe src="editor/" id="editoriframe" seamless></iframe>
+</div>
+</div>
+</div>
+
+<div id="imageview" class="overlay widgetgreen yui3-overlay">
+
+<div class="yui3-overlay-close"></div>
+
+<div class="yui3-overlay-content">
+
+<div class="yui3-widget-hd"><h3>Show <span class="filename"></span></h3></div>
+
+<div class="yui3-widget-bd">
 </div>
 </div>
 </div>

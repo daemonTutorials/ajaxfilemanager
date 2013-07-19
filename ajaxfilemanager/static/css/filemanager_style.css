@@ -72,6 +72,16 @@ background-color: #FFC540;
     cursor: pointer;
 }
 
+#imageview .yui3-overlay-close {
+    position: absolute;
+    top: -3%;
+    left: -1%;
+    background-image: url(../images/close.png);
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+}
+
 .draggable h3 { cursor: move; }
 .overlay { display: none; }
 
@@ -129,6 +139,7 @@ transition: all 200ms linear;
 #upload { width: 700px;}
 #editoriframe { width: 900px; height: 630px; display: block;}
 #editor { background-color: white; width: 900px; }
+#imageview { background-color: white; max-width: 900px; max-height: 630px;}
 
 
 #marks { display:none; }

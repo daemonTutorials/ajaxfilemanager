@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, url
+from django.conf.urls.static import static
 from ajaxfilemanager.settings import *
 
 urlpatterns = patterns('',
@@ -18,6 +19,7 @@ urlpatterns = patterns('',
     url(r'^upload/$', 'ajaxfilemanager.views.upload', name='upload'),
     url(r'^upload/uploader/$', 'ajaxfilemanager.views.handlefiles'),
     url(r'^noroot/$', 'ajaxfilemanager.views.noroot', name='noroot'),
+    url(r'^ajaxfmmedia/(?P<path>.*)$', 'django.views.static.serve', {'document_root': file_directory}),
     #url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
     #    {'document_root': TEMPLATE_DIRS[0]+"/ajaxfilemanager"}),
     #url(r'^uploads/(?P<path>.*)$', 'django.views.static.serve',
